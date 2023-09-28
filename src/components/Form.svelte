@@ -23,21 +23,27 @@
 
 <div>
     <div>
-        <div class="flex text-sm text-white p-4 bg-[#733dd9] rounded-t-md">
-        <div class="w-[37.5%]">
+        <div class="flex text-sm text-white p-4 bg-[#221148]">
+        <div class="w-[35%]">
             Item
         </div>
-        <div class="w-[12.5%]">
-            Quandity
+        <div class="w-[10%]">
+            Type
         </div>
-        <div class="w-[12.5%]">
-            Rate
+        <div class="w-[10%]">
+            Qty
         </div>
-        <div class="w-[12.5%]">
+        <div class="w-[10%]">
+            Price
+        </div>
+        <div class="w-[10%]">
             Discount
         </div>
-        <div class="w-[12.5%]">
-            Amount
+        <div class="w-[10%]">
+            GST
+        </div>
+        <div class="w-[10%]">
+            Total
         </div>
     </div>
 </div>
@@ -46,6 +52,13 @@
     <FormItem bind:item={item} {index} bind:data={data} ></FormItem>
 {/each}
 
-<button on:click={handleInsertLast} class="flex justify-center w-full  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 rounded-md border bg-[#f7faff] hover:bg-gray-100 text-sm text-[#617183]"> <img src={Add} class="mr-2 self-center"  alt="loading"> <span > Add New Line</span></button>
+<button on:click={handleInsertLast} class="flex justify-center w-full mt-3  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 my-border border-r-0 bg-[#F8FAFF] hover:bg-gray-100 text-sm text-[#6C40D1] font-semibold" >ADD NEW LINE ITEM</button>
 
 </div>
+
+
+<style>
+    .my-border {
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23B7C2D3FF' stroke-width='3' stroke-dasharray='7%2c15' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
+    }
+</style>

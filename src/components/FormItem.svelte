@@ -33,44 +33,56 @@
     }
 </script>
 
-<div class=" p-4 mb-2 bg-[#f7faff]">
+<style>
+    .my-border {
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='20' ry='20' stroke='%23B7C2D3FF' stroke-width='3' stroke-dasharray='7%2c15' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
+        border-radius: 20px;
+    }
+</style>
+
+<div class=" p-4 bg-[#F8FAFF]">
     <div class="flex text-sm text-black">
-        <div class=" w-[37.5%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} type="text">
+        <div class=" w-[35%] p-1 flex">
+           <span class="self-center">{index+1}.</span> <input class=" pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} type="text">
         </div>
-        <div class=" w-[12.5%] p-1 flex">
+        <div class=" w-[10%] p-1 flex">
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" min="1" bind:value={item.quantity} >
         </div>
-        <div class=" w-[12.5%] p-1 flex"> <span class="self-center pr-1">₹</span>
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
+        <div class=" w-[10%] p-1 flex">
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" min="1" bind:value={item.quantity} >
         </div>
-        <div class=" w-[12.5%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit pl-2 w-full" type="text" bind:value={item.discount}>
+        <div class=" w-[10%] p-1 flex"> <span class="self-center pr-1">₹</span>
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.price} >
+        </div>
+        <div class=" w-[10%] p-1 flex">
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit pl-2 w-full" type="number" bind:value={item.discount}>
             <select class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
                 <option class="" value="%">%</option>
                 <option value="₹">₹</option>
             </select>
         </div>
-        <div class=" w-[12.5%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.total} >
+        <div class=" w-[10%] p-1 flex">
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.price} ><span class="self-center pr-1">%</span>
         </div>
-        <button on:click={handleDelete} class=" w-[12.5%] p-1">
+        <div class=" w-[10%] p-1 flex">
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.total} >
+        </div>
+        <button on:click={handleDelete} class=" w-[5%] p-1">
             <img src={Cross} alt="">
         </button>
     </div>
-    <div class="items-center mt-2 flex">
-        <button class="flex ml-4  focus:bg-[#e5ecf7] px-6 p-1 border-dashed bg- border-violet-300 rounded-md border bg-[#f7faff] hover:bg-gray-100 text-sm text-[#617183]"> <img src={Plus} class="mr-2" alt="loading">  Upload Thumnail</button>
+    <div class="items-center mt-5 flex">
+        <button class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 p-5 py-8 text-[#6C40D1] break-words w-36 text-center">Add Thumbnail</button>
         <!-- <input type="file"  id='files' class="hidden"/> -->
-        
-        <button class="flex ml-4  focus:bg-[#e5ecf7] px-6 p-1 border-dashed bg- border-violet-300 rounded-md border bg-[#f7faff] hover:bg-gray-100 text-sm text-[#617183]"> <img src={Plus} class="mr-2" alt="loading">  Add Description</button>
-        <!-- <input type="file"  id='files' class="hidden"/> -->
-        
-        <button class="ml-auto mr-2"><span class="text-sm text-[#617183] hover:text-black">Insert an item below</span></button>
-        {#if index > 0}
-             <button class="mr-2" on:click={()=>handleInsertAt(index)} ><img src={Up} class="opacity-70 hover:opacity-100 " alt=""></button>
-        {/if}
-        {#if index +1 < data.length}
-            <button class="mr-2" on:click={()=>handleInsertAt(index+1)} ><img src={Down} class="opacity-70 hover:opacity-100 " alt=""></button>
-        {/if}
+        <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-2 m-2 h-28 rounded-lg p-5" placeholder="Add description" />
+        <div class="ml-auto flex">
+            {#if index +1 < data.length}
+            <!-- <button class=" mr-2"></button> -->
+            <button class="mr-2 flex opacity-70 hover:opacity-100" on:click={()=>handleInsertAt(index+1)} ><span class="text-sm text-[#617183] hover:text-black">Insert an item below</span><img src={Down} class="ml-2  " alt=""></button>
+            {/if}
+            {#if index > 0}
+            <button class="mr-2 flex" on:click={()=>handleInsertAt(index)} ><img src={Up} class="opacity-70 hover:opacity-100 " alt=""></button>
+            {/if}
+        </div>
     </div>
 </div>
