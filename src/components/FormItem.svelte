@@ -1,14 +1,17 @@
 <script lang='ts'>
-  import { setting, type FormItemType} from "../store";
+    import { setting, type FormItemType} from "../store";
 
-  import Plus from '../assets/plus.svg'
+    import Plus from '../assets/plus.svg'
     import Cross from '../assets/cross.svg'
     import Up from '../assets/up.svg'
     import Down from '../assets/down.svg'
     export let item :FormItemType ;
     export let data :FormItemType[]
     export let index :number;
-    $:{
+    let input :HTMLInputElement;
+    let image :HTMLImageElement;
+    let showImage = false;
+    $:{ 
         if(item.discountType === '₹') {
             item.total = Math.round(((item.price *(1+ item.gst/100)) - item.discount )* item.quantity) ;
         }
@@ -26,6 +29,7 @@
             discountType:'%',
             type:'',
             gst:0,
+            file:null,
             name:'',
             price:0,
             quantity:1,
@@ -33,7 +37,20 @@
         })
         data = [...data];
     }
-
+    function onThumbnailChange() {
+        item.file = input.files ? input.files[0]:null;
+		
+        if (item.file) {
+            showImage = true;
+            const reader = new FileReader();
+            reader.addEventListener("load", function () {
+                image.setAttribute("src", reader.result as string);
+            });
+            reader.readAsDataURL(item.file);
+            return;
+        } 
+		showImage = false; 
+    }
   let countries = [
     {
       name: "United States",
@@ -60,12 +77,12 @@
     },
   ];
   let ind = 0;
-  let next: HTMLInputElement | null = null
+  let next: HTMLInputElement ;
   let filterdArray : any[] =[];
   let focus =false ;
   $:console.log(ind)
   $: filterdArray, ind = 0 ;
-  function counputeDiscount(value:number) {
+  function computeDiscount(value:number) {
         if(item.discountType == '₹') {
             item.discount = (item.price + item.price*item.gst/100) - (value/ item.quantity)
         }
@@ -136,7 +153,7 @@
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
         </div>
         <div class=" w-[10%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" on:change={(e)=>counputeDiscount(e.target?.value ?? 0)} value={item.total} >
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
         <button on:click={handleDelete} class=" w-[5%] p-1">
             <img src={Cross} alt="">
@@ -144,11 +161,18 @@
     </div>
     <div class=" mt-5 flex">
         {#if $setting.showThumbnail}
-             <button class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center">Add Thumbnail</button>
-             <!-- <input type="file"  id='files' class="hidden"/> -->
+                {#if showImage}
+                    <img bind:this={image} class="h-32 w-32"  src="" alt="Preview" />
+                    <button on:click={()=> { showImage= false}} class="self-start w-[5%] p-1">
+                        <img src={Cross} alt="">
+                    </button>
+                {:else}
+                    <input bind:this={input} on:change={onThumbnailChange} type="file"  id='files' class="hidden" accept="image/png, image/jpeg" />
+                    <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
+                {/if}
         {/if}
         {#if $setting.showDesc}
-            <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-2 mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
+            <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
         {/if}
         <div class="ml-auto flex">
             {#if index +1 < data.length}

@@ -13,6 +13,7 @@
             discount:0,
             discountType:'%',
             type:'',
+            file:null,
             gst:0,
             name:'',
             price:0,
@@ -25,7 +26,7 @@
 
 <div>
     <div>
-        <div class="flex text-sm text-white p-4 bg-[#221148]">
+        <div class="flex text-sm rounded-t text-white p-4 bg-[#221148]">
         <div class="w-[35%]">
             Item
         </div>
