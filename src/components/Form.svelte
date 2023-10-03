@@ -9,12 +9,14 @@
         console.log(data)
     })
     function handleInsertLast() {
-        const value = {   
+        const value = {
             discount:0,
             discountType:'%',
+            type:'',
+            gst:0,
             name:'',
             price:0,
-            quantity:0,
+            quantity:1,
             total:0,
          }
         data = [...data,value];

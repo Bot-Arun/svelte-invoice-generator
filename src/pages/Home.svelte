@@ -1,9 +1,18 @@
 <script lang="ts" >
-  import Header from "../components/Header.svelte";
-  import File from '../assets/file.svg'
   import Cross from '../assets/cross.svg'
   import Form from "../components/Form.svelte";
-  import { formData } from "../store";
+  import { formData ,setting } from "../store";
+  let discount : number = 0 ;
+  let discountType : string = '%';
+  let extraCharges :number = 0 ;
+  let extraChargesType : string  = "%";
+  let total  = 0 ;
+  $: {
+    if($formData.length) {
+        total = $formData.map(x => x.total).reduce((x,y) => x +y);
+    }
+  }
+  $:console.log($setting)
 </script>
 <style>
     .my-border {
@@ -55,12 +64,20 @@
                 <Form bind:data={$formData}/>
 
                 <div class="flex " >
+                    <div class="ml-5 flex flex-col">
+                        <div class="text-3xl mt-10 font-semibold"> Settings</div>
+                        <div class="flex flex-col mt-5">
+                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.autoMode}> <span>Automatic</span></div>
+                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.showThumbnail}> <span>show thumbnail</span></div>
+                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.showDesc}> <span>show description</span></div>
+                        </div>
+                    </div>
                     <div class="ml-auto">
                         <div class="">
                             <div class="flex mt-10">
                                 <div class="self-center text-xl mr-10">Discount</div>
-                                <input class="ml-auto focus:outline-none  border-b pb-2 w-32 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
-                                <select class="ml-5 focus:outline-none border-b pb-2 w-16 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                <input bind:value={discount} class="ml-auto focus:outline-none  border-b pb-2 w-32 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
+                                <select bind:value={discountType} class="ml-5 focus:outline-none border-b pb-2 w-16 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
                                     <option value="%">%</option>
                                     <option value="₹">₹</option>
                                 </select>
@@ -68,8 +85,8 @@
                             </div>
                             <div class="flex mt-7">
                                 <div class="self-center text-xl mr-10">Extra Charge</div>
-                                <input class="ml-auto focus:outline-none  border-b pb-2 w-32 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
-                                <select class="ml-5 focus:outline-none border-b pb-2 w-16 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                <input bind:value={extraCharges} class="ml-auto focus:outline-none  border-b pb-2 w-32 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
+                                <select bind:value={extraChargesType} class="ml-5 focus:outline-none border-b pb-2 w-16 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
                                     <option value="%">%</option>
                                     <option value="₹">₹</option>
                                 </select>
@@ -83,7 +100,7 @@
                             </div>
                             <div class="flex font-semibold text-2xl mt-10 p-4 border-t-2 border-b-2">
                                <span>Total (INR)</span>
-                               <span class="ml-auto"> ₹ {1}</span> 
+                               <span class="ml-auto"> ₹ {total}</span> 
                             </div>
 
                         </div>
@@ -104,15 +121,15 @@
                     <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                 </div>
                 <div class="mt-10">
-                    <input type="checkbox" name="" id=""> <span class="text-lg ml-4 ">Save the T&Cs for every next period</span>
+                    <input type="checkbox" name="" id=""><span class="text-lg ml-4 ">Save the T&Cs for every next period</span>
                 </div>
                 <div class="flex-col w-full flex">
-                        <span class="text-white mt-10 bg-[#CC335F] text-lg self-center p-2 rounded-md "  >
-                            SAVE & CONTINUE
-                        </span>
-                        <div class="text-black font-semibold self-center my-10">
-                            Powered by NiForms
-                        </div>
+                    <span class="text-white mt-10 bg-[#CC335F] text-lg self-center p-2 rounded-md "  >
+                        SAVE & CONTINUE
+                    </span>
+                    <div class="text-black font-semibold self-center my-10">
+                        Powered by NiForms
+                    </div>
                 </div>
             </div>
         </div>
