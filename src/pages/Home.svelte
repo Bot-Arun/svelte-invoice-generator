@@ -79,9 +79,12 @@
                     <div class="flex-1 bg-[#f8faff] py-4 px-3 mx-2 rounded-xl"> 
                         <div class="text-lg text-[#556172] py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="India" type="text">
+                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#111013] bg-inherit placeholder-[#B7C2D3] " placeholder="India" type="text">
                             <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Created By" type="text">
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Created Date" type="text">
+                            <div class="flex">
+                                <label for="created-date" class=" flex w-48 text-[#B7C2D3] border-b pb-2 border-gray-400 focus:border-[#733dd9] bg-inherit mt-5" >Created Date</label>
+                                <input id='created-date' class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit text-[#B7C2D3] " placeholder="Created Date" type="date">
+                            </div>
                             <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Type" type="text">
 
                         </div>
@@ -92,7 +95,7 @@
                             <div class="p-4 pb-10">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" type="text">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Business name" type="text">
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Email id" type="text">
+                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Email id" type="email">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Type" type="text">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Address" type="text">
                             </div>
@@ -147,12 +150,14 @@
                             <button on:click={addAdditionalCharges} class="text-[#6C40D1] mt-7">
                                 + Add Additional charges
                             </button>
+                            <div class="w-[350px]"> </div>
                             <div class="flex font-semibold text-2xl mt-10 py-4 border-y border-[#B7C2D3FF] ">
                                <span>Total (INR)</span>
                                <span class="ml-auto"> ₹ {total}</span> 
                             </div>
 
                         </div>
+                    <div class="my-border-2 w-full focus:bg-[#F8FAFF] hover:bg-gray-100 h-20 p-2 text-[#6C40D1] break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold"> Add Signature</span></div>
                     </div>
                 </div>
                 <div class="flex mt-10">
@@ -160,7 +165,7 @@
                         <div class="text-lg text-[#556172]  py-2 font-semibold">ADDITIONAL NOTES</div>
                         <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                     </div>
-                    <div class="h-60 flex-1 ml-5 p-5 bg-[#F8FAFF]">
+                    <div class="h-60 flex-1 ml-5 p-5 bg-[#F8FAFF]"> 
                         <div class="text-lg text-[#556172]  py-2 font-semibold">ADD ATTACHMENTS</div>
                         <button class="mt-5 rounded-3xl focus:bg-[#e5ecf7] hover:bg-gray-100" >
                             <div class="my-border-2  w-32 h-32 flex">

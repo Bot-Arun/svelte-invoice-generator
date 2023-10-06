@@ -1,7 +1,6 @@
 <script lang='ts'>
     import { setting, type FormItemType} from "../store";
 
-    import Plus from '../assets/plus.svg'
     import Cross from '../assets/cross.svg'
     import Up from '../assets/up.svg'
     import Down from '../assets/down.svg'
@@ -152,7 +151,7 @@
         <div class=" w-[10%] p-1 flex">
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
         </div>
-        <div class=" w-[10%] p-1 flex">
+        <div class="w-[10%] p-1 flex">
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
         <button on:click={handleDelete} class=" w-[5%] p-1">
@@ -162,12 +161,12 @@
     <div class=" mt-5 flex">
         {#if $setting.showThumbnail}
                 {#if showImage}
-                    <img bind:this={image} class="h-32 w-32"  src="" alt="Preview" />
+                    <img bind:this={image} class="h-32 w-32" alt="Thumbnail"  />
                     <button on:click={()=> { showImage= false}} class="self-start w-[5%] p-1">
                         <img src={Cross} alt="">
                     </button>
                 {:else}
-                    <input bind:this={input} on:change={onThumbnailChange} type="file"  id='files' class="hidden" accept="image/png, image/jpeg" />
+                    <input bind:this={input} accept="image/png, image/jpeg" on:change={onThumbnailChange} type="file"  id='files' class="hidden"  />
                     <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
                 {/if}
         {/if}
