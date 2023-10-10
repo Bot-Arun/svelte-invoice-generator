@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
     import Add from '../assets/add.svg'
-    import {type FormItemType } from '../store';
+    import {setting, type FormItemType } from '../store';
     import FormItem from './FormItem.svelte';
 
     export let data:FormItemType[] ;
@@ -30,23 +30,30 @@
         <div class="w-[35%]">
             Item
         </div>
-        <div class="w-[10%]">
+        <div class="flex-1">
             Type
         </div>
-        <div class="w-[10%]">
+        <div class="flex-1">
             Qty
         </div>
-        <div class="w-[10%]">
+        <div class="flex-1">
             Price
         </div>
-        <div class="w-[10%]">
-            Discount
-        </div>
-        <div class="w-[10%]">
-            GST
-        </div>
-        <div class="w-[10%]">
+        {#if $setting.discount}
+            <div class="flex-1">
+                Discount
+            </div>
+        {/if}
+        {#if $setting.GST}
+            <div class="flex-1">
+                GST
+            </div>
+        {/if}
+        <div class="flex-1">
             Total
+        </div>
+        <div class="w-10">
+
         </div>
     </div>
 </div>

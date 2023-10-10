@@ -11,11 +11,34 @@ export interface FormItemType {
   quantity: number;
   total: number;
 }
+export interface Setting {
+  autoMode: boolean,
+  showThumbnail: boolean,
+  showDesc: boolean,
+  showDiscount:boolean,
+  showGST:boolean,
+}
 
-export const setting = writable({
+function getFromLocalStorage<T>(key: string, defaultValue: T): T {
+  const storedValue = localStorage.getItem(key);
+  return storedValue ? JSON.parse(storedValue) : defaultValue;
+}
+function updateLocalStorage<T>(key: string, value: T) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+export const setting = writable(getFromLocalStorage('setting', {
   autoMode: false,
-  showThumbnail: true,
-  showDesc: true,
+  thumbnail: true,
+  description: true,
+  discount: true,
+  additionalNotes: true,
+  attachments: true,
+  GST: true,
+}));
+
+setting.subscribe(($setting) => {
+  updateLocalStorage('setting', $setting);
 });
 
 export interface charge {
@@ -31,6 +54,7 @@ export interface FormDataType {
     total:number,
     attachments :File[],
     terms:string[],
+    signature:File|null,
 }
 
 export const formData:Writable<FormDataType> = writable({
@@ -47,6 +71,7 @@ export const formData:Writable<FormDataType> = writable({
       total: 0,
     },
   ],
+  signature:null, 
   deductions:[],
   total:0,
   aditionalCharges:[],

@@ -82,6 +82,8 @@
   $:console.log(ind)
   $: filterdArray, ind = 0 ;
   function computeDiscount(value:number) {
+        if($setting.discount===false)
+            return
         if(item.discountType == '₹') {
             item.discount = (item.price + item.price*item.gst/100) - (value/ item.quantity)
         }
@@ -132,26 +134,30 @@
                 {/if}
             </div>
         </div>
-        <div class=" w-[10%] p-1 flex">
+        <div class="flex-1 p-1 flex">
             <input  bind:this={next}  class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" min="1" bind:value={item.type} >
         </div>
-        <div class=" w-[10%] p-1 flex">
+        <div class=" flex-1 p-1 flex">
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
         </div>
-        <div class=" w-[10%] p-1 flex"> <span class="self-center pr-1">₹</span>
+        <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.price} >
         </div>
-        <div class=" w-[10%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit pl-2 w-full" type="number" bind:value={item.discount}>
-            <select class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
-                <option class="" value="%">%</option>
-                <option value="₹">₹</option>
-            </select>
-        </div>
-        <div class=" w-[10%] p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
-        </div>
-        <div class="w-[10%] p-1 flex">
+        {#if $setting.discount}
+            <div class=" flex-1 p-1 flex">
+                <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit pl-2 w-full" type="number" bind:value={item.discount}>
+                <select class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
+                    <option class="" value="%">%</option>
+                    <option value="₹">₹</option>
+                </select>
+            </div>
+        {/if}
+        {#if $setting.GST}
+            <div class="flex-1 p-1 flex">
+                <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
+            </div>
+        {/if}
+        <div class="flex-1 p-1 flex">
             <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
         <button on:click={handleDelete} class=" w-[5%] p-1">
@@ -159,7 +165,7 @@
         </button>
     </div>
     <div class=" mt-5 flex">
-        {#if $setting.showThumbnail}
+        {#if $setting.thumbnail}
                 {#if showImage}
                     <img bind:this={image} class="h-32 w-32" alt="Thumbnail"  />
                     <button on:click={()=> { showImage= false}} class="self-start w-[5%] p-1">
@@ -170,7 +176,7 @@
                     <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
                 {/if}
         {/if}
-        {#if $setting.showDesc}
+        {#if $setting.description}
             <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
         {/if}
         <div class="ml-auto flex">

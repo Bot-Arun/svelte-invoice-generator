@@ -2,11 +2,21 @@
   import Cross from '../assets/cross.svg'
   import Down from '../assets/down.svg'
   import Up from '../assets/up.svg'
+  import Setting from '../assets/setting.svg'
   import Form from "../components/Form.svelte";
+  import PDF from '../assets/pdf.svg'
+  import XLS from '../assets/xls.svg'
+  import DOC from '../assets/document.svg'
+  import  {Link} from 'svelte-routing'
   import { formData ,setting, type charge } from "../store";
+  import Settings from './Settings.svelte';
+  let attachmentInput:HTMLInputElement;
   let discounts :charge[] = $formData.deductions;
   let extraCharges:charge[] = $formData.aditionalCharges;
   let total:number  = $formData.total ;
+  let input :HTMLInputElement ;
+  let showImage =false ;
+  let image : HTMLImageElement;
   $: {
     if($formData.items.length) {
         total = $formData.items.map(x => x.total).reduce((x,y) => x +y);
@@ -40,7 +50,52 @@
     $formData.terms.splice(index,1)
     $formData.terms = [...$formData.terms]
   }
-
+  function onSignatureChange() {
+        $formData.signature = input.files ? input.files[0]:null;
+		
+        if ($formData.signature ) {
+            showImage = true;
+            const reader = new FileReader();
+            reader.addEventListener("load", function () {
+                image.setAttribute("src", reader.result as string);
+            });
+            reader.readAsDataURL($formData.signature);
+            return;
+        } 
+		showImage = false; 
+    }
+    let attachmentImgs :HTMLImageElement[] = [];
+    function getExtension(file:File) {
+        const parts = file?.name.split('.') ?? [];
+        const extension = parts[parts?.length-1]
+        return extension;
+    }
+    function addAttachment() {
+        console.log('working')
+        const file = attachmentInput.files?.[0];
+        if (file === undefined) {
+            return;
+        }
+        $formData.attachments.push(file);
+        attachmentImgs.push(new Image());
+        const extension= getExtension(file);
+        if (extension === 'png'|| extension == 'jpeg'|| extension === 'jpg') {
+            const reader = new FileReader();
+            reader.addEventListener("load", function () {
+                attachmentImgs[attachmentImgs.length-1].setAttribute("src", reader.result as string);
+            });
+            reader.readAsDataURL($formData.attachments[$formData.attachments.length-1]);
+        }
+        $formData.attachments= [...$formData.attachments] 
+        attachmentImgs = [...attachmentImgs]
+    } 
+    function removeAttachment(index:number) {
+        $formData.attachments.splice(index,1);
+        $formData.attachments= [...$formData.attachments]
+        attachmentImgs.splice(index,1);
+        attachmentImgs = [...attachmentImgs];
+    }
+    $: console.log(attachmentImgs,$formData.attachments)
   $: {
     let val = $formData.items.reduce((x,y) => x+ y.total,0)
     let totalDiscountPercent = discounts.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
@@ -63,6 +118,9 @@
     }
 </style>
 <div class="bg-[#f3f5f7] min-h-screen">
+    <div class="fixed bottom-20 left-20">
+    <Link to='/setting'><img src={Setting} alt=""></Link>
+    </div>
     <main class="justify-center flex py-40">
         <div class="flex flex-col w-[1024px] bg-white border border-[#617183]">
             <div class="flex justify-between text-white bg-[#221148] py-5">
@@ -79,7 +137,7 @@
                     <div class="flex-1 bg-[#f8faff] py-4 px-3 mx-2 rounded-xl"> 
                         <div class="text-lg text-[#556172] py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#111013] bg-inherit placeholder-[#B7C2D3] " placeholder="India" type="text">
+                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#111013] bg-inherit placeholder-[#B7C2D3] " placeholder="TC10A22023" type="text">
                             <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Created By" type="text">
                             <div class="flex">
                                 <label for="created-date" class=" flex w-48 text-[#B7C2D3] border-b pb-2 border-gray-400 focus:border-[#733dd9] bg-inherit mt-5" >Created Date</label>
@@ -96,7 +154,10 @@
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" type="text">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Business name" type="text">
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Email id" type="email">
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Type" type="text">
+                                <div class="flex">
+                                    <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Phone no" type="text">
+                                    <input class="ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="GST no" type="text">
+                                </div>
                                 <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Address" type="text">
                             </div>
                         </div>
@@ -113,8 +174,8 @@
                         <div class="text-3xl mt-10 font-semibold"> Settings</div>
                         <div class="flex flex-col mt-5">
                             <div class="mt-3"><input type="checkbox" bind:checked={$setting.autoMode}> <span>Automatic</span></div>
-                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.showThumbnail}> <span>show thumbnail</span></div>
-                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.showDesc}> <span>show description</span></div>
+                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.thumbnail}> <span>show thumbnail</span></div>
+                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.description}> <span>show description</span></div>
                         </div>
                     </div>
                     <div class="ml-auto mt-5">
@@ -157,22 +218,56 @@
                             </div>
 
                         </div>
-                    <div class="my-border-2 w-full focus:bg-[#F8FAFF] hover:bg-gray-100 h-20 p-2 text-[#6C40D1] break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold"> Add Signature</span></div>
+                        {#if showImage}
+                            <div class="flex mt-5">
+                                <img bind:this={image} class="h-28 w-60" alt="Thumbnail"  />
+                                <button on:click={()=> { showImage= false}} class="self-start w-10  -p-t-3">
+                                    <img src={Cross} alt="">
+                                </button>
+                            </div>
+                        {:else}
+                            <input bind:this={input} accept="image/png, image/jpeg" on:change={onSignatureChange} type="file"  id='sig' class="hidden"  />
+                            <label for='sig' class="my-border-2 w-full focus:bg-[#F8FAFF] hover:bg-gray-100 h-20 p-2 text-[#6C40D1] break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
+                        {/if}
                     </div>
                 </div>
                 <div class="flex mt-10">
-                    <div class="h-60 mr-5 flex-1 p-5 bg-[#F8FAFF]">
-                        <div class="text-lg text-[#556172]  py-2 font-semibold">ADDITIONAL NOTES</div>
-                        <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
-                    </div>
-                    <div class="h-60 flex-1 ml-5 p-5 bg-[#F8FAFF]"> 
-                        <div class="text-lg text-[#556172]  py-2 font-semibold">ADD ATTACHMENTS</div>
-                        <button class="mt-5 rounded-3xl focus:bg-[#e5ecf7] hover:bg-gray-100" >
-                            <div class="my-border-2  w-32 h-32 flex">
-                                <span class="text-[#6C40D1] text-lg my-auto mx-auto">Add here</span> 
+                    {#if $setting.additionalNotes}
+                        <div class="h-60 mr-5 flex-1 p-5 bg-[#F8FAFF]">
+                            <div class="text-lg text-[#556172]  py-2 font-semibold">ADDITIONAL NOTES</div>
+                            <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
+                        </div>
+                    {/if}
+                    {#if $setting.attachments}
+                        <div class="flex-1 ml-5 p-5 bg-[#F8FAFF]"> 
+                            <div class="text-lg text-[#556172]  py-2 font-semibold">ADD ATTACHMENTS</div>
+                            <div class="flex flex-wrap">
+
+                                {#each attachmentImgs  as item,index}
+                                    {@const extension = getExtension($formData.attachments[index])}
+                                    <div class="flex mr-4 mb-4">
+                                        {#if extension=== 'jpeg' || extension==='png' || extension === 'jpeg'}
+                                            <img bind:this={item}  class="w-28 h-28 " alt="">
+                                        {:else if  extension === 'pdf'}
+                                            <img bind:this={item} src={PDF}  class="w-28 h-28" alt="">   
+                                        {:else if extension === 'xlsx'}
+                                            <img bind:this={item} src={XLS} class="w-28 h-28" alt="">
+                                        {:else}
+                                            <img bind:this={item} src={DOC} class="w-28 h-28" alt="">
+                                        {/if}
+                                        <button on:click={()=> removeAttachment(index)} class="w-6 self-start">
+                                            <img src={Cross} alt="">
+                                        </button>
+                                    </div>
+                                {/each}
+                                <!-- <img src={PDF} alt=""> -->
+                                <input bind:this={attachmentInput} on:change={addAttachment} type="file" hidden id='attach' >
+                                <label for="attach"  class="my-border-2 rounded-3xl  focus:bg-[#e5ecf7] hover:bg-gray-100 w-32 h-32 flex text-[#6C40D1] text-lg text-center">
+                                    <span class="m-auto"> Add here</span>
+                                </label>
                             </div>
-                        </button>
-                    </div>
+                        </div>
+                    {/if}
                 </div>
                 <div class="w-full mt-16 p-5 bg-[#F8FAFF]">
                     <div class="text-lg text-[#556172]  py-2 font-semibold">TERMS & CONDITIONS</div>
