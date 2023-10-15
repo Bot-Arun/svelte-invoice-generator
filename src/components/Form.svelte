@@ -1,13 +1,9 @@
 <script lang='ts'>
-    import { onMount } from 'svelte';
-    import Add from '../assets/add.svg'
-    import {setting, type FormItemType } from '../store';
+    import { type FormItemType } from '../store/FormStore';
+    import {setting} from '../store/SettingsStore'
     import FormItem from './FormItem.svelte';
 
     export let data:FormItemType[] ;
-    onMount(()=>{
-        console.log(data)
-    })
     function handleInsertLast() {
         const value = {
             discount:0,

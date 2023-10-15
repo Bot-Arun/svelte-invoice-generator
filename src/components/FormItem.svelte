@@ -1,6 +1,6 @@
 <script lang='ts'>
-    import { setting, type FormItemType} from "../store";
-
+    import { setting, productData} from "../store/SettingsStore";
+    import { type FormItemType } from "../store/FormStore";
     import Cross from '../assets/cross.svg'
     import Up from '../assets/up.svg'
     import Down from '../assets/down.svg'
@@ -36,6 +36,12 @@
         })
         data = [...data];
     }
+    function swapItem(index:number) {
+        let temp = data[index];
+        data[index] = data[index+1];
+        data[index +1] = temp;
+        data = [...data];
+    }
     function onThumbnailChange() {
         item.file = input.files ? input.files[0]:null;
 		
@@ -50,36 +56,11 @@
         } 
 		showImage = false; 
     }
-  let countries = [
-    {
-      name: "United States",
-
-      iso_3: "USA",
-
-      phone_code: "+1",
-    },
-
-    {
-      name: "United Kingdom",
-
-      iso_3: "GBR",
-
-      phone_code: "+44",
-    },
-
-    {
-      name: "Türkiye",
-
-      iso_3: "TUR",
-
-      phone_code: "+90",
-    },
-  ];
+  
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
   let focus =false ;
-  $:console.log(ind)
   $: filterdArray, ind = 0 ;
   function computeDiscount(value:number) {
         if($setting.discount===false)
@@ -93,21 +74,24 @@
         else {
             item.discount = 0;
         }
-        console.log('done')
     }
   $: {
-    filterdArray = countries.filter( x => x.name.toLocaleLowerCase().startsWith(item.name.toLocaleLowerCase())&& x.name.toLocaleLowerCase() !== item.name.toLocaleLowerCase() && item.name!=='') ;
+    filterdArray = $productData.filter( x => x.name && x.name.toLocaleLowerCase().startsWith(item.name.toLocaleLowerCase())&& x.name.toLocaleLowerCase() && item.name!=='') ;
     }
-  function changeFocus(key:number) {
-    if (key===40 && filterdArray.length >0)
+  function changeFocus(code:string) {
+    if (code==="ArrowDown" && filterdArray.length >0)
     ind = Math.min(filterdArray.length-1,ind+1);
-    else if (key===38)
+    else if (code==="ArrowUp")
     ind = Math.max(0,ind-1);
-    else if (key===13) {
-      item.name = filterdArray[ ind].name;
+    else if (code==="Enter") {
+      item.name = filterdArray[ ind].name ?? '';
+      item.discount = filterdArray[ ind].discount ?? 0;
+      item.gst = filterdArray[ ind].gst ?? 0;
+      item.type = filterdArray[ ind].type ?? '';
+      item.price = filterdArray[ind].price ?? 0 ;   
       next.focus();
     }
-  }
+}
 </script>
 
 <style>
@@ -123,25 +107,25 @@
             <div class="relative w-full">
                 <div class="flex">
                     <span class="self-center">{index+1}.</span> 
-                    <input class=" pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.keyCode)}  type="text">
+                    <input class=" pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
                 </div>
                 {#if focus && filterdArray.length && $setting.autoMode}
-                    <div class="absolute border-2 bg-white w-full">
-                        {#each filterdArray as item,index}
-                            <div class:bg-gray-200={index==ind} class="p-2 " on:click={()=> {item.name = item.name;next.focus();}} >{item.name}</div>
+                    <div class="absolute flex flex-col border rounded-lg mt-1 border-gray-400 bg-white w-full">
+                        {#each filterdArray as value,index}
+                            <button tabindex="-1" class="p-2 text-left {index==ind?"bg-[#945ff7] text-white":""}" on:mouseenter={()=> ind = index}  on:click={()=> changeFocus("Enter")} >{value.name}</button>
                         {/each}
                     </div>
                 {/if}
             </div>
         </div>
         <div class="flex-1 p-1 flex">
-            <input  bind:this={next}  class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" min="1" bind:value={item.type} >
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" min="1" bind:value={item.type} >
         </div>
         <div class=" flex-1 p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
+            <input bind:this={next} class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
         </div>
         <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.price} >
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
         </div>
         {#if $setting.discount}
             <div class=" flex-1 p-1 flex">
@@ -158,7 +142,7 @@
             </div>
         {/if}
         <div class="flex-1 p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
+            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
         <button on:click={handleDelete} class=" w-[5%] p-1">
             <img src={Cross} alt="">
@@ -167,8 +151,8 @@
     <div class=" mt-5 flex">
         {#if $setting.thumbnail}
                 {#if showImage}
-                    <img bind:this={image} class="h-32 w-32" alt="Thumbnail"  />
-                    <button on:click={()=> { showImage= false}} class="self-start w-[5%] p-1">
+                    <img bind:this={image} class="h-28 w-28 ml-4" alt="Thumbnail"  />
+                    <button on:click={()=> { showImage= false}} class="self-start w-[5%] -mt-3">
                         <img src={Cross} alt="">
                     </button>
                 {:else}
@@ -180,12 +164,17 @@
             <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
         {/if}
         <div class="ml-auto flex">
+            <button class="text-sm text-[#733dd9] opacity-70 hover:opacity-100 font-medium hover:cursor-pointer" on:click={()=> handleInsertAt(index+1)} >Insert an item below</button>
             {#if index +1 < data.length}
             <!-- <button class=" mr-2"></button> -->
-            <button class="mr-2 flex opacity-70 hover:opacity-100" on:click={()=>handleInsertAt(index+1)} ><span class="text-sm text-[#617183] hover:text-black">Insert an item below</span><img src={Down} class="ml-2  " alt=""></button>
+            <div class="mr-2 flex " >
+                <button on:click={()=> swapItem(index)} ><img src={Down} class="ml-2 opacity-70 hover:opacity-100" alt=""></button>
+            </div>
             {/if}
             {#if index > 0}
-            <button class="mr-2 flex" on:click={()=>handleInsertAt(index)} ><img src={Up} class="opacity-70 hover:opacity-100 " alt=""></button>
+            <div class="mr-2 flex">
+                <button on:click={()=>swapItem(index-1)} ><img src={Up} class="opacity-70 hover:opacity-100 " alt=""></button>
+            </div>
             {/if}
         </div>
     </div>

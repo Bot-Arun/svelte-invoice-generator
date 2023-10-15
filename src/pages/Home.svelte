@@ -8,8 +8,9 @@
   import XLS from '../assets/xls.svg'
   import DOC from '../assets/document.svg'
   import  {Link} from 'svelte-routing'
-  import { formData ,setting, type charge } from "../store";
-  import Settings from './Settings.svelte';
+  import { formData , type charge } from "../store/FormStore";
+  import { clientData, setting, type ClientData ,client, variables, terms } from '../store/SettingsStore';
+  import { onMount } from 'svelte';
   let attachmentInput:HTMLInputElement;
   let discounts :charge[] = $formData.deductions;
   let extraCharges:charge[] = $formData.aditionalCharges;
@@ -17,12 +18,35 @@
   let input :HTMLInputElement ;
   let showImage =false ;
   let image : HTMLImageElement;
+
+  let ind = 0;
+  let next: HTMLInputElement ;
+  let filterdArray : any[] =[];
+  let focus =false ;
+  $: filterdArray, ind = 0 ;
+  function changeFocus(code:string) {
+    if (code==="ArrowDown" && filterdArray.length >0)
+    ind = Math.min(filterdArray.length-1,ind+1);
+    else if (code==="ArrowUp")
+    ind = Math.max(0,ind-1);
+    else if (code==="Enter") {
+      $client.name = filterdArray[ ind].name ?? '';
+      $client.email = filterdArray[ind].email ?? ''
+      $client.business = filterdArray[ind].business ?? ''
+      $client.phno = filterdArray[ind].phno ?? ''
+      $client.gstno = filterdArray[ind].gstno ?? ''
+      $client.address = filterdArray[ind].address ?? ''
+      next.focus();
+    }
+  }
+  $: {
+    filterdArray = $clientData.filter( x => x.name && x.name.toLocaleLowerCase().startsWith($client.name.toLocaleLowerCase())&& x.name.toLocaleLowerCase() && $client.name!=='') ;
+    }
   $: {
     if($formData.items.length) {
         total = $formData.items.map(x => x.total).reduce((x,y) => x +y);
     }
   }
-  $:console.log($setting)
   function addDiscount(){
     discounts = [...discounts,{name:'Discount',chargeType:'%',amount:0}]
   }
@@ -64,38 +88,22 @@
         } 
 		showImage = false; 
     }
-    let attachmentImgs :HTMLImageElement[] = [];
     function getExtension(file:File) {
         const parts = file?.name.split('.') ?? [];
         const extension = parts[parts?.length-1]
         return extension;
     }
     function addAttachment() {
-        console.log('working')
         const file = attachmentInput.files?.[0];
-        if (file === undefined) {
+        if (file === undefined)
             return;
-        }
         $formData.attachments.push(file);
-        attachmentImgs.push(new Image());
-        const extension= getExtension(file);
-        if (extension === 'png'|| extension == 'jpeg'|| extension === 'jpg') {
-            const reader = new FileReader();
-            reader.addEventListener("load", function () {
-                attachmentImgs[attachmentImgs.length-1].setAttribute("src", reader.result as string);
-            });
-            reader.readAsDataURL($formData.attachments[$formData.attachments.length-1]);
-        }
         $formData.attachments= [...$formData.attachments] 
-        attachmentImgs = [...attachmentImgs]
     } 
     function removeAttachment(index:number) {
         $formData.attachments.splice(index,1);
         $formData.attachments= [...$formData.attachments]
-        attachmentImgs.splice(index,1);
-        attachmentImgs = [...attachmentImgs];
     }
-    $: console.log(attachmentImgs,$formData.attachments)
   $: {
     let val = $formData.items.reduce((x,y) => x+ y.total,0)
     let totalDiscountPercent = discounts.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
@@ -105,7 +113,9 @@
     let totalExtraChargeAmount = extraCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
     total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
     }
-
+    onMount(()=>{
+        $formData.terms=[...$terms] ;  ;
+    })
 </script>
 <style>
     .my-border {
@@ -122,7 +132,7 @@
     <Link to='/setting'><img src={Setting} alt=""></Link>
     </div>
     <main class="justify-center flex py-40">
-        <div class="flex flex-col w-[1024px] bg-white border border-[#617183]">
+        <div class="flex flex-col w-[1024px] bg-white  shadow-lg">
             <div class="flex justify-between text-white bg-[#221148] py-5">
                 <div class=" px-8 py-8 font-light text-sm">
                     <div class="text-3xl  font-bold">QUOTATION</div>
@@ -137,35 +147,42 @@
                     <div class="flex-1 bg-[#f8faff] py-4 px-3 mx-2 rounded-xl"> 
                         <div class="text-lg text-[#556172] py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#111013] bg-inherit placeholder-[#B7C2D3] " placeholder="TC10A22023" type="text">
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Created By" type="text">
-                            <div class="flex">
-                                <label for="created-date" class=" flex w-48 text-[#B7C2D3] border-b pb-2 border-gray-400 focus:border-[#733dd9] bg-inherit mt-5" >Created Date</label>
-                                <input id='created-date' class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit text-[#B7C2D3] " placeholder="Created Date" type="date">
-                            </div>
-                            <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Type" type="text">
-
+                            {#each $variables as variable}
+                                <select class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                <option value="" disabled selected >{variable[0]}</option>
+                                {#each variable[1] as value}
+                                    <option>{value}</option>
+                                {/each}
+                                </select>
+                            {/each}
                         </div>
                     </div>
                     <div  class="flex-1 bg-[#f8faff] px-2 mx-2"> 
                         <div class="flex-1 py-4 px-3 mx-2 rounded-xl"> 
                             <div class="text-lg text-[#556172]  py-2 font-semibold">CLIENT INFORMATION</div>
-                            <div class="p-4 pb-10">
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" type="text">
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Business name" type="text">
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Email id" type="email">
+                            <div class="p-4 relative pb-10">
+                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" bind:value={$client.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.key)}  type="text">
+                                {#if focus && filterdArray.length && $setting.autoMode}
+                                    <div class="absolute border flex flex-col rounded-lg mt-1 border-gray-400 bg-white w-full">
+                                        {#each filterdArray as item,index}
+                                            <button class="p-2 text-left {index==ind?"bg-[#945ff7] text-white":""}" on:mouseenter={()=> ind = index}  on:click={()=> changeFocus("Enter")} >{item.name}</button>
+                                        {/each}
+                                    </div>
+                                {/if}
+                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.business} placeholder="Business name" type="text">
+                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.email} placeholder="Email id" type="email">
                                 <div class="flex">
-                                    <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Phone no" type="text">
-                                    <input class="ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="GST no" type="text">
+                                    <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.phno} placeholder="Phone no" type="text">
+                                    <input class="ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.gstno} placeholder="GST no" type="text">
                                 </div>
-                                <input class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Address" type="text">
+                                <input bind:this={next} class="focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.address} placeholder="Address" type="text">
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="p-4">
-                    <input type="checkbox"/> <span class="ml-2"> Add shiping details</span>
+                    <input type="checkbox"/> <span class="ml-2"> Add additional details</span>
                 </div>
                 <Form bind:data={$formData.items}/>
 
@@ -221,7 +238,7 @@
                         {#if showImage}
                             <div class="flex mt-5">
                                 <img bind:this={image} class="h-28 w-60" alt="Thumbnail"  />
-                                <button on:click={()=> { showImage= false}} class="self-start w-10  -p-t-3">
+                                <button on:click={()=> { showImage= false}} class="self-start w-10  -mt-3 ">
                                     <img src={Cross} alt="">
                                 </button>
                             </div>
@@ -240,29 +257,32 @@
                     {/if}
                     {#if $setting.attachments}
                         <div class="flex-1 ml-5 p-5 bg-[#F8FAFF]"> 
-                            <div class="text-lg text-[#556172]  py-2 font-semibold">ADD ATTACHMENTS</div>
+                            <div class="text-lg text-[#556172]  py-2 mb-3 font-semibold">ADD ATTACHMENTS</div>
                             <div class="flex flex-wrap">
 
-                                {#each attachmentImgs  as item,index}
+                                {#each $formData.attachments  as item,index}
                                     {@const extension = getExtension($formData.attachments[index])}
-                                    <div class="flex mr-4 mb-4">
-                                        {#if extension=== 'jpeg' || extension==='png' || extension === 'jpeg'}
-                                            <img bind:this={item}  class="w-28 h-28 " alt="">
-                                        {:else if  extension === 'pdf'}
-                                            <img bind:this={item} src={PDF}  class="w-28 h-28" alt="">   
-                                        {:else if extension === 'xlsx'}
-                                            <img bind:this={item} src={XLS} class="w-28 h-28" alt="">
-                                        {:else}
-                                            <img bind:this={item} src={DOC} class="w-28 h-28" alt="">
-                                        {/if}
-                                        <button on:click={()=> removeAttachment(index)} class="w-6 self-start">
+                                    <div class="flex mr-2 mb-4">
+                                        <div class="flex flex-col">
+                                            {#if  extension === 'pdf'}
+                                                <img src={PDF}  class="w-20 h-20" alt="">   
+                                            {:else if extension === 'xlsx'}
+                                                <img src={XLS} class="w-20 h-20" alt="">
+                                            {:else}
+                                                <img src={DOC} class="w-20 h-20" alt="">
+                                            {/if}
+                                            <div class="text-center mt-2 text-sm">
+                                                {item.name.length > 10? item.name.substring(0,10)+'...':item.name}
+                                            </div>
+                                        </div>
+                                        <button on:click={()=> removeAttachment(index)} class="w-6 -ml-4 -mt-2  self-start">
                                             <img src={Cross} alt="">
                                         </button>
                                     </div>
                                 {/each}
                                 <!-- <img src={PDF} alt=""> -->
                                 <input bind:this={attachmentInput} on:change={addAttachment} type="file" hidden id='attach' >
-                                <label for="attach"  class="my-border-2 rounded-3xl  focus:bg-[#e5ecf7] hover:bg-gray-100 w-32 h-32 flex text-[#6C40D1] text-lg text-center">
+                                <label for="attach"  class="my-border-2 rounded-3xl  focus:bg-[#e5ecf7] hover:bg-gray-100 w-28 h-28 flex text-[#6C40D1] text-lg text-center">
                                     <span class="m-auto"> Add here</span>
                                 </label>
                             </div>

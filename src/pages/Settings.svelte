@@ -1,15 +1,57 @@
 <script lang="ts">
   import { Link } from "svelte-routing";
   import back from '../assets/back.svg'
-  import {setting} from '../store'
+  import DataMapping from "../components/DataMapping.svelte";
+  import {setting,variables} from '../store/SettingsStore'
+  import Cross from '../assets/cross.svg'
+  import { fade, fly } from "svelte/transition";
+  let ind = 0 ;
+  let tempVariableName = '';
+  export let error = ''
+  const setError = (msg:string) =>  {
+    error = msg;
+    setTimeout(()=> error = '',3000)
+  }
+  function addNewVariable() {
+    $variables = [...$variables,['',['']]]
+  }
+  
+  function newVariable(code:string,index:number) {
+    if(code=="Enter") {
+      $variables[index][0] = tempVariableName ;
+      $variables[index] = [...$variables[index]]
+      $variables = [...$variables]
+    }
+  }
+
+  function removeVariable(index:number) {
+    if($variables.length>1)
+    $variables.splice(index,1);
+    else 
+    $variables[0] = ['',['']]
+    $variables = [...$variables]
+  }
+
+  function addValue (index:number) {
+    $variables[index][1].push('') ;
+    $variables[index] = [...$variables[index]]
+    $variables = [...$variables]
+  }
+  function removeValue (index:number) {
+    $variables[ind][1].splice(index,1);
+    $variables[ind] = [...$variables[ind]]
+    $variables = [...$variables]
+  }
+
+  $: $variables,$variables.length -1 < ind? ind-=1 :ind
 </script>
 
 
-<div class="bg-[#f3f5f7] min-h-screen pt-20">
+<div class="bg-[#f3f5f7] py-20">
   <div class="fixed ml-20">
   <Link to='/'><img src={back} alt=""></Link> 
   </div>
-  <main class="justify-center p-10 flex-col mx-auto w-[1024px] bg-white flex ">
+  <main class="justify-center p-10 flex-col mx-auto shadow-lg w-[1024px] bg-white flex ">
     <div class="text-4xl font-semibold">
       SETTINGS
     </div>
@@ -58,6 +100,65 @@
         
       </div>
     </div>
+    <div class="flex my-10 bg-[#f8faff] px-10">
+      <div class=" w-1/2 p-10">
+        <div class="flex">
+          <div class="font-semibold pb-3">CUSTOM VARIABLES</div>
+          <button class="ml-auto text-[#6C40D1]" on:click={addNewVariable} >+ Add new variable</button>
+        </div>
+        {#each $variables as item,index}
+          <div class="flex mt-4">
+            {#if item[0] === ''}
+              <button on:click={()=> removeVariable(index)}><img src={Cross} alt=""></button>
+              <input class="ml-2 focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]" placeholder="Variable Name" bind:value={tempVariableName} on:keydown={(e)=>newVariable(e.code,index)}  on:focusout={()=>newVariable("Enter",index)} type="text">
+            {:else}
+              <button on:click={()=> removeVariable(index)}><img src={Cross} alt=""></button>
+              <button class="flex ml-4  {ind===index ? 'text-[#6C40D1]':''}" on:focusin={()=>ind = index} >
+                {item[0]} ({item[1].length})
+              </button>
+              <div class="ml-auto text-[#6C40D1] {ind===index?'visible':'hidden'}">{'>'}</div>
+            {/if}
+          </div>
+        {/each}
+        
+      </div>
+      <div class="bg-[#f8faff] w-1/2 my-10 border-l-gray-200 border-l-2 px-10">
+        <div class="flex">
+          <div class="font-semibold pb-3">VALUES</div>
+          <button class="ml-auto text-[#6C40D1]" on:click={()=>addValue(ind)} >+ Add new value</button>
+        </div>
+        {#each  $variables[ind][1]  as item,index}
+           <div class="flex mt-3">
+            <span class="self-center mr-2">{index+1}.</span>
+            <input class=" focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]" bind:value={item} placeholder=" Choose value {index+1}" type="text"> <button class="ml-auto" on:click={()=>removeValue(index)} > <img src={Cross} alt=""> </button>
+            </div>            
+        {/each}
+      </div>
+    </div>
+    <div>
+      <div class="my-5 text-4xl font-semibold">
+        DATA MAPPING
+      </div>
+      <DataMapping {setError}/>
+    <div class="flex mt-10"><button class="mx-auto px-6 py-2 bg-[#CC335F] rounded-lg text-base text-white">SAVE CHANGES</button> </div>
+    <div class="text-center font-semibold my-10">Powered by NiForms</div>
+    </div>
   </main>
+  {#if error}
+  <div class=" flex justify-center">
+    <div in:fly out:fade class="alert alert-error w-[50%] fixed bottom-5 ">
+      <button on:click={()=>error = ''}>
+        <svg  xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </button>  
+      <span>{error}</span>
+    </div>
+  </div>
+  {/if}
 </div>
+<style>
+  :global(.highlight ) {
+    background: #000 !important;
+    /* min-width: max-content; */
+  }
+</style>
 
