@@ -18,41 +18,45 @@
          }
         data = [...data,value];
     }
+    let innerWidth:number;
 </script>
 
+<svelte:window bind:innerWidth />
 <div>
     <div>
         <div class="flex text-sm rounded-t text-white p-4 bg-[#221148]">
         <div class="w-[35%]">
             Item
         </div>
-        <div class="flex-1">
-            Type
-        </div>
-        <div class="flex-1">
-            Qty
-        </div>
-        <div class="flex-1">
-            Price
-        </div>
-        {#if $setting.discount}
+        {#if innerWidth >= 768}
+            <div class="flex-1">
+                 Type
+            </div>
+            <div class="flex-1">
+                Qty
+            </div>
+            <div class="flex-1">
+                Price
+            </div>
+            {#if $setting.discount}
             <div class="flex-1">
                 Discount
             </div>
-        {/if}
-        {#if $setting.GST}
+            {/if}
+            {#if $setting.GST}
             <div class="flex-1">
                 GST
             </div>
+            {/if}
+            <div class="flex-1">
+                Total
+            </div>
+            <div class="w-10">
+                
+            </div>
         {/if}
-        <div class="flex-1">
-            Total
-        </div>
-        <div class="w-10">
-
         </div>
     </div>
-</div>
 
 {#each data as item,index }
     <FormItem bind:item={item} {index} bind:data={data} ></FormItem>

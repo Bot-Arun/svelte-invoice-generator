@@ -111,20 +111,20 @@
 </script>
 <div class="bg-[#f8faff]">
 
-    <div class="p-4 bg-[#221148] rounded-t-lg font-semibold flex">
+    <div class="p-3 sm:p-4 max-sm:text-xs max-md:text-sm bg-[#221148] rounded-t-lg font-semibold flex">
       <button class=" hover:text-white {tab=='client'?'text-white':'text-gray-500'}" on:click={()=> tab = 'client'} >CLIENT INFORMATION</button>
-      <button class="hover:text-white {tab=='item'?'text-white':'text-gray-500'} ml-10" on:click={()=> tab = 'item'} >ITEM INFORMATION</button>
-      <button class="hover:text-white {tab=='terms'?'text-white':'text-gray-500'} ml-10" on:click={()=> tab = 'terms'} >TERMS & CONDITIONS</button>
+      <button class="hover:text-white {tab=='item'?'text-white':'text-gray-500'} ml-1 sm:ml-5 md:ml-10" on:click={()=> tab = 'item'} >ITEM INFORMATION</button>
+      <button class="hover:text-white {tab=='terms'?'text-white':'text-gray-500'} ml-1 sm:ml-5 md:ml-10" on:click={()=> tab = 'terms'} >TERMS & CONDITIONS</button>
     </div>
     {#if tab == 'item'}
-         <div class="bg-[#f8faff] flex m-3 p-6">
-            <input class="bg-inherit flex-1 border focus:outline-none rounded-lg p-2" bind:value={$itemURL} placeholder="Add your json url here" type="text" />
-            <button class="bg-[#CC335F] rounded-lg ml-6 p-2 text-white px-4" on:click={getItemData} >Fetch Data</button>
-       </div>
+    <div class="bg-[#f8faff] flex max-md:flex-col m-3 p-6">
+        <input class="bg-inherit flex-1 border focus:outline-none rounded-lg p-2" bind:value={$itemURL} placeholder="Add your json url here" type="text" />
+        <button class="bg-[#CC335F] rounded-lg w-fit max-md:mx-auto max-md:mt-3 md:ml-6 p-2 text-white px-4"  on:click={getItemData} >Fetch Data</button>
+    </div>
        {#each $productDataMapping as item,index}
            <div class="flex px-10 py-3">   
-               <div class="w-60" >
-                   <select class="text-lg w-60 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
+               <div class="" >
+                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
                     {#if ItemData.length}
                         {#each Object.keys(ItemData[0]) as val}
                             {#if item.from===val || !$productDataMapping.map(y => y.from).includes(val) }
@@ -134,8 +134,8 @@
                     {/if}
                    </select>
                </div>
-               <div class="w-60 ml-auto">
-                   <select class="text-lg w-60 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
+               <div class="ml-auto">
+                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
                     {#each itemList as val}
                        {#if item.to === val || !$productDataMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>
@@ -150,14 +150,14 @@
             <button class="text-[#6C40D1]  ml-10 my-6" in:fade out:fade  on:click={addProductMapping} >Add Mapping</button>
        {/if}
     {:else if  tab === 'client'}
-        <div class="bg-[#f8faff] flex m-3 p-6">
+        <div class="bg-[#f8faff] flex max-md:flex-col m-3 p-6">
             <input class="bg-inherit flex-1 border focus:outline-none rounded-lg p-2" bind:value={$clientURL} placeholder="Add your json url here" type="text" />
-            <button class="bg-[#CC335F] rounded-lg ml-6 p-2 text-white px-4"  on:click={getClientData} >Fetch Data</button>
+            <button class="bg-[#CC335F] rounded-lg w-fit max-md:mx-auto max-md:mt-3 md:ml-6 p-2 text-white px-4"  on:click={getClientData} >Fetch Data</button>
         </div>
         {#each $clientDataMapping as item,index}
             <div class="flex px-10 py-3">   
-                <div class="w-60" >
-                    <select class="text-lg w-60 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
+                <div class="" >
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
                         {#if CustomerData.length}
                             {#each Object.keys(CustomerData[0]) as val}
                                 {#if item.from===val || !$clientDataMapping.map(y => y.from).includes(val) }
@@ -167,8 +167,8 @@
                         {/if}
                     </select>
                 </div>
-                <div class="w-60 ml-auto">
-                    <select class="text-lg w-60 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
+                <div class="ml-auto">
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
                         {#each clientList as val}
                         {#if item.to === val || !$clientDataMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>

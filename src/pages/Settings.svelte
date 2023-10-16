@@ -47,16 +47,16 @@
 </script>
 
 
-<div class="bg-[#f3f5f7] py-20">
-  <div class="fixed ml-20">
+<div class=" flex bg-[#f3f5f7] md:py-32">
+  <div class="fixed top-5 right-5 md:left-10 md:top-10">
   <Link to='/'><img src={back} alt=""></Link> 
   </div>
-  <main class="justify-center p-10 flex-col mx-auto shadow-lg w-[1024px] bg-white flex ">
+  <main class="text-black justify-center px-4 md:px-10 py-10 flex-col mx-auto shadow-lg w-[1024px] bg-white flex ">
     <div class="text-4xl font-semibold">
       SETTINGS
     </div>
-    <div class="flex my-10 bg-[#f8faff] px-10">
-      <div class=" w-1/2 p-10">
+    <div class="flex max-md:flex-col my-10 bg-[#f8faff] md:px-10">
+      <div class=" md:w-1/2 p-10">
         <div class="font-semibold pb-3">FORM SETTINGS</div>
         <div class="flex mt-4">
           <input type="checkbox" bind:checked={$setting.discount} >
@@ -83,7 +83,7 @@
           <div class="ml-4">Include attachments</div>
         </div>
       </div>
-      <div class="bg-[#f8faff] w-1/2 my-10 border-l-gray-200 border-l-2 px-10">
+      <div class="bg-[#f8faff] md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10"> 
         <div class="font-semibold pb-3">THEME SETTINGS</div>
         <div class="flex mt-4 justify-between">
           <div class="mr-4">Primary Color</div>
@@ -98,10 +98,10 @@
           <input id="primary" type="color" >
         </div>
         
-      </div>
+      </div> 
     </div>
-    <div class="flex my-10 bg-[#f8faff] px-10">
-      <div class=" w-1/2 p-10">
+    <div class="flex max-md:flex-col my-10 bg-[#f8faff] md:px-10">
+      <div class=" md:w-1/2 p-10">
         <div class="flex">
           <div class="font-semibold pb-3">CUSTOM VARIABLES</div>
           <button class="ml-auto text-[#6C40D1]" on:click={addNewVariable} >+ Add new variable</button>
@@ -122,7 +122,7 @@
         {/each}
         
       </div>
-      <div class="bg-[#f8faff] w-1/2 my-10 border-l-gray-200 border-l-2 px-10">
+      <div class="bg-[#f8faff] md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10">
         <div class="flex">
           <div class="font-semibold pb-3">VALUES</div>
           <button class="ml-auto text-[#6C40D1]" on:click={()=>addValue(ind)} >+ Add new value</button>
@@ -143,17 +143,17 @@
     <div class="flex mt-10"><button class="mx-auto px-6 py-2 bg-[#CC335F] rounded-lg text-base text-white">SAVE CHANGES</button> </div>
     <div class="text-center font-semibold my-10">Powered by NiForms</div>
     </div>
-  </main>
-  {#if error}
-  <div class=" flex justify-center">
-    <div in:fly out:fade class="alert alert-error w-[50%] fixed bottom-5 ">
-      <button on:click={()=>error = ''}>
-        <svg  xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      </button>  
-      <span>{error}</span>
+    {#if error}
+    <div class=" flex justify-center">
+      <div in:fly out:fade class="alert alert-error w-[50%] fixed bottom-5 ">
+        <button on:click={()=>error = ''}>
+          <svg  xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </button>  
+        <span>{error}</span>
+      </div>
     </div>
-  </div>
-  {/if}
+    {/if}
+  </main>
 </div>
 <style>
   :global(.highlight ) {

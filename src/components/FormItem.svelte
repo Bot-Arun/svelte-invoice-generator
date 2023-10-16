@@ -92,6 +92,7 @@
       next.focus();
     }
 }
+let innerWidth:number;
 </script>
 
 <style>
@@ -101,13 +102,18 @@
     }
 </style>
 
-<div class=" p-4 bg-[#F8FAFF]">
-    <div class="flex text-sm text-black">
-        <div class=" w-[35%] p-1 flex">
+<svelte:window bind:innerWidth />
+<div class=" p-4 bg-[#F8FAFF] max-md:mb-4">
+    <div class="flex max-md:flex-col max-sm:px-2 max-md:px-6 text-sm text-black">
+        <div class=" md:w-[35%] p-1 flex">
             <div class="relative w-full">
                 <div class="flex">
-                    <span class="self-center">{index+1}.</span> 
-                    <input class=" pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
+                    <span class="-left-2 self-center max-md:text-xl absolute max-sm:-left-4 max-md:-left-6">{index+1}. </span> 
+                    <button on:click={handleDelete} class="absolute -right-3 md:hidden ">
+                        <img src={Cross} alt="">
+                    </button>
+                    <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg">Item</div>
+                    <input class="rounded-none pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
                 </div>
                 {#if focus && filterdArray.length && $setting.autoMode}
                     <div class="absolute flex flex-col border rounded-lg mt-1 border-gray-400 bg-white w-full">
@@ -118,38 +124,53 @@
                 {/if}
             </div>
         </div>
-        <div class="flex-1 p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" min="1" bind:value={item.type} >
+        <div class="flex-1 p-1 flex max-md:mt-4">
+            <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg  ">Type</div>
+            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.type} >
         </div>
-        <div class=" flex-1 p-1 flex">
-            <input bind:this={next} class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
+        <div class=" flex-1 p-1 flex max-md:mt-5">
+            <div class="self-center md:hidden max-md:w-32 text-lg">Quandity</div>
+            <input bind:this={next} class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
+            {#if innerWidth < 768 && innerWidth >= 640 }
+                <div class="self-center md:hidden max-md:w-32 text-lg ml-5">Price</div>
+                <span class="self-center pr-1">₹</span>
+                <input class="rounded-none focus:outline-none border-b  border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full " type="text" bind:value={item.price} >
+            {/if}
         </div>
-        <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
-        </div>
+
+        {#if innerWidth >= 768 && innerWidth < 640}
+            <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
+            </div>
+        {/if}
         {#if $setting.discount}
-            <div class=" flex-1 p-1 flex">
-                <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit pl-2 w-full" type="number" bind:value={item.discount}>
-                <select class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
+            <div class="flex-1 p-1 max-md:ml-auto  max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
+                <div class="self-center md:hidden max-md:w-32 text-lg">Discount</div>
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full " type="number" bind:value={item.discount}>
+                <select class="focus:outline-none border-b max-md:w-10 border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
                     <option class="" value="%">%</option>
                     <option value="₹">₹</option>
                 </select>
             </div>
         {/if}
         {#if $setting.GST}
-            <div class="flex-1 p-1 flex">
-                <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
+            <div class="flex-1 p-1 max-md:ml-auto max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
+                <div class="self-center md:hidden max-md:w-32 text-lg">GST</div>
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
             </div>
         {/if}
-        <div class="flex-1 p-1 flex">
-            <input class="focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
+        <div class="flex-1 p-1 max-md:ml-auto max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
+            <div class="self-center md:hidden max-md:w-32 text-lg">Total</div>
+            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
-        <button on:click={handleDelete} class=" w-[5%] p-1">
+        <button on:click={handleDelete} class="max-md:hidden w-[5%] p-1">
             <img src={Cross} alt="">
         </button>
     </div>
-    <div class=" mt-5 flex">
+    <div class="max-sm:px-2 max-md:px-10 mt-5 flex max-md:flex-col">
         {#if $setting.thumbnail}
+            <div class="flex">
+                <div class="self-center md:hidden max-md:w-32 text-lg">Thumbnail</div>
                 {#if showImage}
                     <img bind:this={image} class="h-28 w-28 ml-4" alt="Thumbnail"  />
                     <button on:click={()=> { showImage= false}} class="self-start w-[5%] -mt-3">
@@ -159,11 +180,15 @@
                     <input bind:this={input} accept="image/png, image/jpeg" on:change={onThumbnailChange} type="file"  id='files' class="hidden"  />
                     <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
                 {/if}
+            </div>
+
         {/if}
         {#if $setting.description}
-            <textarea class="w-[450px] ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
+        <div class="flex pl-5">
+            <textarea class=" max-md:w-full md:w-[350px] lg:w-[400px] xl:w-[450px] max-md:mx-auto max-md:my-5 ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
+        </div>
         {/if}
-        <div class="ml-auto flex">
+        <div class=" max-md:mx-auto max-md:my-5 md:ml-auto flex">
             <button class="text-sm text-[#733dd9] opacity-70 hover:opacity-100 font-medium hover:cursor-pointer" on:click={()=> handleInsertAt(index+1)} >Insert an item below</button>
             {#if index +1 < data.length}
             <!-- <button class=" mr-2"></button> -->
