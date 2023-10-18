@@ -2,7 +2,7 @@
   import { Link } from "svelte-routing";
   import back from '../assets/back.svg'
   import DataMapping from "../components/DataMapping.svelte";
-  import {setting,variables} from '../store/SettingsStore'
+  import {setting,variables,themeColors} from '../store/SettingsStore'
   import Cross from '../assets/cross.svg'
   import { fade, fly } from "svelte/transition";
   let ind = 0 ;
@@ -44,8 +44,8 @@
   }
 
   $: $variables,$variables.length -1 < ind? ind-=1 :ind
-</script>
 
+</script>
 
 <div class=" flex bg-[#f3f5f7] md:py-32">
   <div class="fixed top-5 right-5 md:left-10 md:top-10">
@@ -55,7 +55,7 @@
     <div class="text-4xl font-semibold">
       SETTINGS
     </div>
-    <div class="flex max-md:flex-col my-10 bg-[#f8faff] md:px-10">
+    <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
       <div class=" md:w-1/2 p-10">
         <div class="font-semibold pb-3">FORM SETTINGS</div>
         <div class="flex mt-4">
@@ -83,54 +83,58 @@
           <div class="ml-4">Include attachments</div>
         </div>
       </div>
-      <div class="bg-[#f8faff] md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10"> 
+      <div class="bg-secondary-bg md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10"> 
         <div class="font-semibold pb-3">THEME SETTINGS</div>
         <div class="flex mt-4 justify-between">
-          <div class="mr-4">Primary Color</div>
-          <input id="primary" type="color" >
+          <div class="mr-4">primary foreground Color</div>
+          <input bind:value={$themeColors.primaryFg} id="primary" type="color" >
         </div>
-        <div class="flex mt-2 justify-between">
-          <div class="mr-4">Secondary Color</div>
-          <input id="primary" type="color" >
+        <div class="flex mt-4 justify-between">
+          <div class="mr-4">primary background Color</div>
+          <input bind:value={$themeColors.primaryBg} id="primary" type="color" >
         </div>
-        <div class="flex mt-2 justify-between">
-          <div class="mr-4">CTA Color</div>
-          <input id="primary" type="color" >
+        <div class="flex mt-4 justify-between">
+          <div class="mr-4">secondary foreground Color</div>
+          <input bind:value={$themeColors.secondaryFg} id="primary" type="color" >
+        </div>
+        <div class="flex mt-4 justify-between">
+          <div class="mr-4">secondary background Color</div>
+          <input bind:value={$themeColors.secondaryBg} id="primary" type="color" >
         </div>
         
       </div> 
     </div>
-    <div class="flex max-md:flex-col my-10 bg-[#f8faff] md:px-10">
+    <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
       <div class=" md:w-1/2 p-10">
         <div class="flex">
           <div class="font-semibold pb-3">CUSTOM VARIABLES</div>
-          <button class="ml-auto text-[#6C40D1]" on:click={addNewVariable} >+ Add new variable</button>
+          <button class="ml-auto text-primary-fg" on:click={addNewVariable} >+ Add new variable</button>
         </div>
         {#each $variables as item,index}
           <div class="flex mt-4">
             {#if item[0] === ''}
               <button on:click={()=> removeVariable(index)}><img src={Cross} alt=""></button>
-              <input class="ml-2 focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]" placeholder="Variable Name" bind:value={tempVariableName} on:keydown={(e)=>newVariable(e.code,index)}  on:focusout={()=>newVariable("Enter",index)} type="text">
+              <input class="ml-2 focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3]" placeholder="Variable Name" bind:value={tempVariableName} on:keydown={(e)=>newVariable(e.code,index)}  on:focusout={()=>newVariable("Enter",index)} type="text">
             {:else}
               <button on:click={()=> removeVariable(index)}><img src={Cross} alt=""></button>
-              <button class="flex ml-4  {ind===index ? 'text-[#6C40D1]':''}" on:focusin={()=>ind = index} >
+              <button class="flex ml-4  {ind===index ? 'text-primary-fg':''}" on:focusin={()=>ind = index} >
                 {item[0]} ({item[1].length})
               </button>
-              <div class="ml-auto text-[#6C40D1] {ind===index?'visible':'hidden'}">{'>'}</div>
+              <div class="ml-auto text-primary-fg {ind===index?'visible':'hidden'}">{'>'}</div>
             {/if}
           </div>
         {/each}
         
       </div>
-      <div class="bg-[#f8faff] md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10">
+      <div class="bg-secondary-bg md:w-1/2 my-10 border-l-gray-200 md:border-l-2 px-10">
         <div class="flex">
           <div class="font-semibold pb-3">VALUES</div>
-          <button class="ml-auto text-[#6C40D1]" on:click={()=>addValue(ind)} >+ Add new value</button>
+          <button class="ml-auto text-primary-fg" on:click={()=>addValue(ind)} >+ Add new value</button>
         </div>
         {#each  $variables[ind][1]  as item,index}
            <div class="flex mt-3">
             <span class="self-center mr-2">{index+1}.</span>
-            <input class=" focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]" bind:value={item} placeholder=" Choose value {index+1}" type="text"> <button class="ml-auto" on:click={()=>removeValue(index)} > <img src={Cross} alt=""> </button>
+            <input class=" focus:outline-none  border-b pb-2 w-60 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3]" bind:value={item} placeholder=" Choose value {index+1}" type="text"> <button class="ml-auto" on:click={()=>removeValue(index)} > <img src={Cross} alt=""> </button>
             </div>            
         {/each}
       </div>
@@ -155,10 +159,4 @@
     {/if}
   </main>
 </div>
-<style>
-  :global(.highlight ) {
-    background: #000 !important;
-    /* min-width: max-content; */
-  }
-</style>
 

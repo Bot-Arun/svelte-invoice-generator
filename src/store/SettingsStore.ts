@@ -85,3 +85,18 @@ export const variables:Writable<[string,string[]][]> = writable([
 ])
 
 export const terms:Writable<string[]> = writable(['Please pay within 15 days from the date of invoice, overdue interest @ 14% will be charged on delayed payments.','Please quote invoice number when remitting funds.'])
+
+export interface Colors {
+  primaryFg: string,
+  primaryBg: string,
+  secondaryFg: string,
+  secondaryBg: string,
+}
+
+
+export const themeColors:Writable<Colors> = writable({
+  primaryFg: '#6C40D1',
+  primaryBg: '#221148',
+  secondaryFg: '#556172',
+  secondaryBg: '#F8FAFF',
+})

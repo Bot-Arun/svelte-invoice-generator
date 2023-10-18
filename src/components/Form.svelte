@@ -24,7 +24,7 @@
 <svelte:window bind:innerWidth />
 <div>
     <div>
-        <div class="flex text-sm rounded-t text-white p-4 bg-[#221148]">
+        <div class="flex text-sm rounded-t text-white p-4 bg-primary-bg">
         <div class="w-[35%]">
             Item
         </div>
@@ -62,7 +62,7 @@
     <FormItem bind:item={item} {index} bind:data={data} ></FormItem>
 {/each}
 
-<button on:click={handleInsertLast} class="flex justify-center w-full mt-3  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 my-border border-r-0 bg-[#F8FAFF] hover:bg-gray-100 text-sm text-[#6C40D1] font-semibold" >ADD NEW LINE ITEM</button>
+<button on:click={handleInsertLast} class="flex justify-center w-full mt-3  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 my-border border-r-0 bg-secondary-bg hover:bg-gray-100 text-sm text-primary-fg font-semibold" >ADD NEW LINE ITEM</button>
 
 </div>
 

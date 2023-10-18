@@ -109,22 +109,22 @@
     $terms = [...$terms]
   }
 </script>
-<div class="bg-[#f8faff]">
+<div class="bg-secondary-bg">
 
-    <div class="p-3 sm:p-4 max-sm:text-xs max-md:text-sm bg-[#221148] rounded-t-lg font-semibold flex">
+    <div class="p-3 sm:p-4 max-sm:text-xs max-md:text-sm bg-primary-bg rounded-t-lg font-semibold flex">
       <button class=" hover:text-white {tab=='client'?'text-white':'text-gray-500'}" on:click={()=> tab = 'client'} >CLIENT INFORMATION</button>
       <button class="hover:text-white {tab=='item'?'text-white':'text-gray-500'} ml-1 sm:ml-5 md:ml-10" on:click={()=> tab = 'item'} >ITEM INFORMATION</button>
       <button class="hover:text-white {tab=='terms'?'text-white':'text-gray-500'} ml-1 sm:ml-5 md:ml-10" on:click={()=> tab = 'terms'} >TERMS & CONDITIONS</button>
     </div>
     {#if tab == 'item'}
-    <div class="bg-[#f8faff] flex max-md:flex-col m-3 p-6">
+    <div class="bg-secondary-bg flex max-md:flex-col m-3 p-6">
         <input class="bg-inherit flex-1 border focus:outline-none rounded-lg p-2" bind:value={$itemURL} placeholder="Add your json url here" type="text" />
         <button class="bg-[#CC335F] rounded-lg w-fit max-md:mx-auto max-md:mt-3 md:ml-6 p-2 text-white px-4"  on:click={getItemData} >Fetch Data</button>
     </div>
        {#each $productDataMapping as item,index}
            <div class="flex px-10 py-3">   
                <div class="" >
-                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
+                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit p-2" bind:value={item.from}>
                     {#if ItemData.length}
                         {#each Object.keys(ItemData[0]) as val}
                             {#if item.from===val || !$productDataMapping.map(y => y.from).includes(val) }
@@ -135,7 +135,7 @@
                    </select>
                </div>
                <div class="ml-auto">
-                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
+                   <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit p-2" bind:value={item.to}>
                     {#each itemList as val}
                        {#if item.to === val || !$productDataMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>
@@ -147,17 +147,17 @@
            </div>
        {/each}     
        {#if ItemData.length}
-            <button class="text-[#6C40D1]  ml-10 my-6" in:fade out:fade  on:click={addProductMapping} >Add Mapping</button>
+            <button class="text-primary-fg  ml-10 my-6" in:fade out:fade  on:click={addProductMapping} >Add Mapping</button>
        {/if}
     {:else if  tab === 'client'}
-        <div class="bg-[#f8faff] flex max-md:flex-col m-3 p-6">
+        <div class="bg-secondary-bg flex max-md:flex-col m-3 p-6">
             <input class="bg-inherit flex-1 border focus:outline-none rounded-lg p-2" bind:value={$clientURL} placeholder="Add your json url here" type="text" />
             <button class="bg-[#CC335F] rounded-lg w-fit max-md:mx-auto max-md:mt-3 md:ml-6 p-2 text-white px-4"  on:click={getClientData} >Fetch Data</button>
         </div>
         {#each $clientDataMapping as item,index}
             <div class="flex px-10 py-3">   
                 <div class="" >
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.from}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit p-2" bind:value={item.from}>
                         {#if CustomerData.length}
                             {#each Object.keys(CustomerData[0]) as val}
                                 {#if item.from===val || !$clientDataMapping.map(y => y.from).includes(val) }
@@ -168,7 +168,7 @@
                     </select>
                 </div>
                 <div class="ml-auto">
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit p-2" bind:value={item.to}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit p-2" bind:value={item.to}>
                         {#each clientList as val}
                         {#if item.to === val || !$clientDataMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>
@@ -180,15 +180,15 @@
             </div>
         {/each} 
         {#if CustomerData.length}
-            <button class="text-[#6C40D1]  ml-10 my-6" in:fade out:fade  on:click={addClientMapping} >Add Mapping</button>
+            <button class="text-primary-fg  ml-10 my-6" in:fade out:fade  on:click={addClientMapping} >Add Mapping</button>
         {/if}
 
     {:else} 
-    <div class="bg-[#f8faff] flex flex-col m-3 p-6">
+    <div class="bg-secondary-bg flex flex-col m-3 p-6">
         {#each $terms as item,index}
             <div class="flex pb-2 mt-5">
                 <span class="self-center  mr-2">{index+1}.</span>
-                <input type="text" bind:value={item} class="focus:outline-none border-b w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]">
+                <input type="text" bind:value={item} class="focus:outline-none border-b w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3]">
                 <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
                 {#if $terms.length -1 > index }
                     <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
@@ -198,7 +198,7 @@
                 {/if}
             </div>
         {/each}
-        <button class="text-[#6C40D1] ml-2 my-6 mr-auto" on:click={addTerms} >Add Terms</button>
+        <button class="text-primary-fg ml-2 my-6 mr-auto" on:click={addTerms} >Add Terms</button>
     </div>
 
     {/if} 

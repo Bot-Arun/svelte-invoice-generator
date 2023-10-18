@@ -9,7 +9,7 @@
   import DOC from '../assets/document.svg'
   import  {Link} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
-  import { clientData, setting, type ClientData ,client, variables, terms } from '../store/SettingsStore';
+  import { clientData, setting ,client, variables, terms } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   let attachmentInput:HTMLInputElement;
   let discounts :charge[] = $formData.deductions;
@@ -22,7 +22,7 @@
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
-  let focus =false ;
+  let focus =true ;
   $: filterdArray, ind = 0 ;
   function changeFocus(code:string) {
     if (code==="ArrowDown" && filterdArray.length >0)
@@ -133,7 +133,7 @@
     </div>
     <main class="text-black justify-center flex md:py-40">
         <div class="flex flex-col w-[1024px] bg-white  shadow-lg">
-            <div class="flex justify-between text-white bg-[#221148] py-5">
+            <div class="flex justify-between text-white bg-primary-bg py-5">
                 <div class=" px-8 py-8 font-light text-sm">
                     <div class=" text-xl sm:text-3xl  font-bold">QUOTATION</div>
                     <div class="mt-2">Business Name</div>
@@ -144,11 +144,11 @@
             </div>
             <div class="px-3 md:px-8 flex flex-col">
                 <div class="flex flex-col sm:flex-row mt-8">
-                    <div class="flex-1 bg-[#f8faff] py-4 px-3 mx-2 rounded-xl"> 
-                        <div class="text-lg text-[#556172] py-2 font-semibold">RECORD INFORMATION</div>
+                    <div class="flex-1 bg-secondary-bg py-4 px-3 mx-2 rounded-xl"> 
+                        <div class="text-lg text-secondary-fg py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
                             {#each $variables as variable}
-                                <select class="focus:outline-none mt-5 border-b pb-2 w-full text-lg border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                <select class="focus:outline-none mt-5 border-b pb-2 w-full text-lg border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                 <option value="" disabled selected >{variable[0]}</option>
                                 {#each variable[1] as value}
                                     <option>{value}</option>
@@ -157,25 +157,25 @@
                             {/each}
                         </div>
                     </div>
-                    <div  class=" mt-5 sm:mt-0 flex-1 bg-[#f8faff] px-2 mx-2"> 
+                    <div  class=" mt-5 sm:mt-0 flex-1 bg-secondary-bg px-2 mx-2"> 
                         <div class="flex-1 py-4 px-3 mx-2 rounded-xl"> 
-                            <div class="text-lg text-[#556172]  py-2 font-semibold">CLIENT INFORMATION</div>
-                            <div class="p-4 relative pb-10">
-                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" bind:value={$client.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.key)}  type="text">
+                            <div class="text-lg text-secondary-fg  py-2 font-semibold">CLIENT INFORMATION</div>
+                            <div class="p-4 relative z-50 pb-10">
+                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" bind:value={$client.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.key)}  type="text">
                                 {#if focus && filterdArray.length && $setting.autoMode}
                                     <div class="absolute border flex flex-col rounded-lg mt-1 border-gray-400 bg-white w-full">
                                         {#each filterdArray as item,index}
-                                            <button class="p-2 text-left {index==ind?"bg-[#945ff7] text-white":""}" on:mouseenter={()=> ind = index}  on:click={()=> changeFocus("Enter")} >{item.name}</button>
+                                            <button class="p-2 text-left {index==ind?"bg-primary-fg text-white":""}" on:mouseenter={()=> ind = index}  on:click={()=> changeFocus("Enter")} >{item.name}</button>
                                         {/each}
                                     </div>
                                 {/if}
-                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.business} placeholder="Business name" type="text">
-                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.email} placeholder="Email id" type="email">
+                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.business} placeholder="Business name" type="text">
+                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.email} placeholder="Email id" type="email">
                                 <div class="flex">
-                                    <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.phno} placeholder="Phone no" type="text">
-                                    <input class="rounded-none ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.gstno} placeholder="GST no" type="text">
+                                    <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.phno} placeholder="Phone no" type="text">
+                                    <input class="rounded-none ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.gstno} placeholder="GST no" type="text">
                                 </div>
-                                <input bind:this={next} class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] " bind:value={$client.address} placeholder="Address" type="text">
+                                <input bind:this={next} class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.address} placeholder="Address" type="text">
                             </div>
                         </div>
                     </div>
@@ -199,9 +199,9 @@
                         <div class="">
                             {#each discounts as discount,index}
                             <div class="flex mt-7">
-                                    <input bind:value={discount.name} class="bg-inherit rounded-none border-b-gray-400 focus:border-b-[#733dd9] border-b w-40 focus:outline-none self-center text-xl mr-10" />
-                                    <input bind:value={discount.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
-                                    <select bind:value={discount.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                    <input bind:value={discount.name} class="bg-inherit rounded-none border-b-gray-400 focus:border-b-primary-fg border-b w-40 focus:outline-none self-center text-xl mr-10" />
+                                    <input bind:value={discount.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
+                                    <select bind:value={discount.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
                                         <option value="₹">₹</option>
                                     </select>
@@ -212,9 +212,9 @@
                                 {#each extraCharges as extraCharge,index}
                                 <div class="flex  mt-7">
 
-                                    <input bind:value={extraCharge.name} class="rounded-none border-b-gray-400 focus:border-b-[#733dd9] border-b w-40 focus:outline-none self-center text-xl mr-10"/>
-                                    <input bind:value={extraCharge.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
-                                    <select bind:value={extraCharge.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3] ">
+                                    <input bind:value={extraCharge.name} class="rounded-none border-b-gray-400 focus:border-b-primary-fg border-b w-40 focus:outline-none self-center text-xl mr-10"/>
+                                    <input bind:value={extraCharge.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
+                                    <select bind:value={extraCharge.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
                                         <option value="₹">₹</option>
                                     </select>
@@ -222,10 +222,10 @@
                                 </div>
                                 {/each}
                             </div>
-                            <button on:click={addDiscount} class="block text-[#6C40D1] mt-7">
+                            <button on:click={addDiscount} class="block text-primary-fg mt-7">
                                 + Add Discount or deductions
                             </button>
-                            <button on:click={addAdditionalCharges} class="text-[#6C40D1] mt-7">
+                            <button on:click={addAdditionalCharges} class="text-primary-fg mt-7">
                                 + Add Additional charges
                             </button>
                             <div class=" bg-green-500 sm:w-[350px]"></div>
@@ -244,20 +244,20 @@
                             </div>
                         {:else}
                             <input bind:this={input} accept="image/png, image/jpeg" on:change={onSignatureChange} type="file"  id='sig' class="hidden"  />
-                            <label for='sig' class="my-border-2 w-full focus:bg-[#F8FAFF] hover:bg-gray-100 h-20 p-2 text-[#6C40D1] break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
+                            <label for='sig' class="my-border-2 w-full focus:bg-secondary-bg hover:bg-gray-100 h-20 p-2 text-primary-fg break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
                         {/if}
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row mt-10 mx-2">
                     {#if $setting.additionalNotes}
-                        <div class="h-60 sm:mr-5 flex-1 p-5 bg-[#F8FAFF]">
-                            <div class="text-lg text-[#556172]  py-2 font-semibold">ADDITIONAL NOTES</div>
+                        <div class="h-60 sm:mr-5 flex-1 p-5 bg-secondary-bg">
+                            <div class="text-lg text-secondary-fg  py-2 font-semibold">ADDITIONAL NOTES</div>
                             <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                         </div>
                     {/if}
                     {#if $setting.attachments}
-                        <div class="flex-1 mt-10 sm:mt-0  sm:ml-5 p-5 bg-[#F8FAFF]"> 
-                            <div class="text-lg text-[#556172]  py-2 mb-3 font-semibold">ADD ATTACHMENTS</div>
+                        <div class="flex-1 mt-10 sm:mt-0  sm:ml-5 p-5 bg-secondary-bg"> 
+                            <div class="text-lg text-secondary-fg  py-2 mb-3 font-semibold">ADD ATTACHMENTS</div>
                             <div class="flex flex-wrap">
 
                                 {#each $formData.attachments  as item,index}
@@ -282,19 +282,19 @@
                                 {/each}
                                 <!-- <img src={PDF} alt=""> -->
                                 <input bind:this={attachmentInput} on:change={addAttachment} type="file" hidden id='attach' >
-                                <label for="attach"  class="my-border-2 rounded-3xl  focus:bg-[#e5ecf7] hover:bg-gray-100 w-28 h-28 flex text-[#6C40D1] text-lg text-center">
+                                <label for="attach"  class="my-border-2 rounded-3xl  focus:bg-[#e5ecf7] hover:bg-gray-100 w-28 h-28 flex text-primary-fg text-lg text-center">
                                     <span class="m-auto"> Add here</span>
                                 </label>
                             </div>
                         </div>
                     {/if}
                 </div>
-                <div class="w-full mt-16 p-5 bg-[#F8FAFF]">
-                    <div class="text-lg text-[#556172]  py-2 font-semibold">TERMS & CONDITIONS</div>
+                <div class="w-full mt-16 p-5 bg-secondary-bg">
+                    <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
                     {#each $formData.terms as item,index}
                         <div class="flex pb-2 mt-5">
                             <span class="self-center  mr-2">{index+1}.</span>
-                            <input type="text" bind:value={item} class="focus:outline-none border-b w-full border-gray-400 focus:border-[#733dd9] bg-inherit placeholder-[#B7C2D3]">
+                            <input type="text" bind:value={item} class="focus:outline-none border-b w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3]">
                             <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
                             {#if $formData.terms.length -1 > index }
                                 <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
@@ -304,7 +304,7 @@
                             {/if}
                         </div>
                     {/each}
-                    <button on:click={addTerms} class="text-[#733dd9] mt-5">+ add Terms</button>
+                    <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
                 </div>
                 <div class="mt-10 max-sm:mx-auto">
                     <input type="checkbox" name="" id=""><span class="text-lg ml-4 ">Save the T&Cs for every next period</span>

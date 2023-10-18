@@ -60,7 +60,7 @@
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
-  let focus =false ;
+  let focus =true ;
   $: filterdArray, ind = 0 ;
   function computeDiscount(value:number) {
         if($setting.discount===false)
@@ -103,7 +103,7 @@ let innerWidth:number;
 </style>
 
 <svelte:window bind:innerWidth />
-<div class=" p-4 bg-[#F8FAFF] max-md:mb-4">
+<div class=" p-4 bg-secondary-bg max-md:mb-4">
     <div class="flex max-md:flex-col max-sm:px-2 max-md:px-6 text-sm text-black">
         <div class=" md:w-[35%] p-1 flex">
             <div class="relative w-full">
@@ -113,7 +113,7 @@ let innerWidth:number;
                         <img src={Cross} alt="">
                     </button>
                     <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg">Item</div>
-                    <input class="rounded-none pl-2 focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
+                    <input class="rounded-none pl-2 focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
                 </div>
                 {#if focus && filterdArray.length && $setting.autoMode}
                     <div class="absolute flex flex-col border rounded-lg mt-1 border-gray-400 bg-white w-full">
@@ -126,28 +126,28 @@ let innerWidth:number;
         </div>
         <div class="flex-1 p-1 flex max-md:mt-4">
             <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg  ">Type</div>
-            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.type} >
+            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.type} >
         </div>
         <div class=" flex-1 p-1 flex max-md:mt-5">
             <div class="self-center md:hidden max-md:w-32 text-lg">Quandity</div>
-            <input bind:this={next} class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
+            <input bind:this={next} class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
             {#if innerWidth < 768 && innerWidth >= 640 }
                 <div class="self-center md:hidden max-md:w-32 text-lg ml-5">Price</div>
                 <span class="self-center pr-1">₹</span>
-                <input class="rounded-none focus:outline-none border-b  border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full " type="text" bind:value={item.price} >
+                <input class="rounded-none focus:outline-none border-b  border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full " type="text" bind:value={item.price} >
             {/if}
         </div>
 
         {#if innerWidth >= 768 && innerWidth < 640}
             <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
-                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
             </div>
         {/if}
         {#if $setting.discount}
             <div class="flex-1 p-1 max-md:ml-auto  max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
                 <div class="self-center md:hidden max-md:w-32 text-lg">Discount</div>
-                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full " type="number" bind:value={item.discount}>
-                <select class="focus:outline-none border-b max-md:w-10 border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit" bind:value={item.discountType} >
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full " type="number" bind:value={item.discount}>
+                <select class="focus:outline-none border-b max-md:w-10 border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit" bind:value={item.discountType} >
                     <option class="" value="%">%</option>
                     <option value="₹">₹</option>
                 </select>
@@ -156,12 +156,12 @@ let innerWidth:number;
         {#if $setting.GST}
             <div class="flex-1 p-1 max-md:ml-auto max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
                 <div class="self-center md:hidden max-md:w-32 text-lg">GST</div>
-                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
+                <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="number" bind:value={item.gst} ><span class="self-center pr-1">%</span>
             </div>
         {/if}
         <div class="flex-1 p-1 max-md:ml-auto max-sm:w-full max-md:w-1/2 max-md:mt-8 flex">
             <div class="self-center md:hidden max-md:w-32 text-lg">Total</div>
-            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-[#733dd9] focus:border-[#733dd9] bg-inherit py-2 pr-2 w-full" type="text" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
+            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="text" on:change={(e)=>computeDiscount(e.target?.value ?? 0)} value={item.total} >
         </div>
         <button on:click={handleDelete} class="max-md:hidden w-[5%] p-1">
             <img src={Cross} alt="">
@@ -178,7 +178,7 @@ let innerWidth:number;
                     </button>
                 {:else}
                     <input bind:this={input} accept="image/png, image/jpeg" on:change={onThumbnailChange} type="file"  id='files' class="hidden"  />
-                    <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-[#6C40D1] break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
+                    <label for='files' class="my-border focus:bg-[#e5ecf7] hover:bg-gray-100 h-28 p-5 text-primary-fg break-words w-36 text-center flex"> <span class="self-center"> Add Thumbnail</span></label>
                 {/if}
             </div>
 
@@ -189,7 +189,7 @@ let innerWidth:number;
         </div>
         {/if}
         <div class=" max-md:mx-auto max-md:my-5 md:ml-auto flex">
-            <button class="text-sm text-[#733dd9] opacity-70 hover:opacity-100 font-medium hover:cursor-pointer" on:click={()=> handleInsertAt(index+1)} >Insert an item below</button>
+            <button class="text-sm text-primary-fg opacity-70 hover:opacity-100 font-medium hover:cursor-pointer" on:click={()=> handleInsertAt(index+1)} >Insert an item below</button>
             {#if index +1 < data.length}
             <!-- <button class=" mr-2"></button> -->
             <div class="mr-2 flex " >
