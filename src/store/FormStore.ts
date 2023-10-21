@@ -2,13 +2,13 @@ import { writable, type Writable } from "svelte/store";
 
 export interface FormItemType {
   name: string;
-  type: string;
   discountType: string;
   discount: number;
   price: number;
   gst: number;
   file:File|null;
   quantity: number;
+  description:string;
   total: number;
 }
 
@@ -25,6 +25,7 @@ export interface FormDataType {
   aditionalCharges:charge[],
   total:number,
   attachments :File[],
+  notes:string,
   terms:string[],
   signature:File|null,
 }
@@ -34,10 +35,10 @@ export const formData:Writable<FormDataType> = writable({
   items: [
     {
       name: "",
-      type: "",
       price: 0,
       discount: 0,
       file:null,
+      description:'',
       discountType: "%",
       quantity: 1,
       gst: 0,
@@ -47,6 +48,7 @@ export const formData:Writable<FormDataType> = writable({
   signature:null, 
   deductions:[],
   total:0,
+  notes:'',
   aditionalCharges:[],
   attachments:[],
   terms:[]

@@ -9,7 +9,16 @@
     export let index :number;
     let input :HTMLInputElement;
     let image :HTMLImageElement;
-    let showImage = false;
+
+    $:if (item.file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            image.src = e.target?.result as string;
+        };
+
+        reader.readAsDataURL(item.file);
+    }   
     $:{ 
         if(item.discountType === '₹') {
             item.total = Math.round(((item.price *(1+ item.gst/100)) - item.discount )* item.quantity) ;
@@ -26,11 +35,11 @@
         data.splice(i,0,{
             discount:0,
             discountType:'%',
-            type:'',
             gst:0,
             file:null,
             name:'',
             price:0,
+            description:'',
             quantity:1,
             total:0,
         })
@@ -46,7 +55,6 @@
         item.file = input.files ? input.files[0]:null;
 		
         if (item.file) {
-            showImage = true;
             const reader = new FileReader();
             reader.addEventListener("load", function () {
                 image.setAttribute("src", reader.result as string);
@@ -54,7 +62,6 @@
             reader.readAsDataURL(item.file);
             return;
         } 
-		showImage = false; 
     }
   
   let ind = 0;
@@ -87,7 +94,6 @@
       item.name = filterdArray[ ind].name ?? '';
       item.discount = filterdArray[ ind].discount ?? 0;
       item.gst = filterdArray[ ind].gst ?? 0;
-      item.type = filterdArray[ ind].type ?? '';
       item.price = filterdArray[ind].price ?? 0 ;   
       next.focus();
     }
@@ -124,10 +130,6 @@ let innerWidth:number;
                 {/if}
             </div>
         </div>
-        <div class="flex-1 p-1 flex max-md:mt-4">
-            <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg  ">Type</div>
-            <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.type} >
-        </div>
         <div class=" flex-1 p-1 flex max-md:mt-5">
             <div class="self-center md:hidden max-md:w-32 text-lg">Quandity</div>
             <input bind:this={next} class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full"  type="number" min="1" bind:value={item.quantity} >
@@ -138,7 +140,7 @@ let innerWidth:number;
             {/if}
         </div>
 
-        {#if innerWidth >= 768 && innerWidth < 640}
+        {#if innerWidth >= 768 || innerWidth < 640}
             <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
                 <input class="rounded-none focus:outline-none border-b border-gray-400 hover:border-primary-fg focus:border-primary-fg bg-inherit py-2 pr-2 w-full" type="text" bind:value={item.price} >
             </div>
@@ -169,11 +171,11 @@ let innerWidth:number;
     </div>
     <div class="max-sm:px-2 max-md:px-10 mt-5 flex max-md:flex-col">
         {#if $setting.thumbnail}
-            <div class="flex">
+            <div class="flex mr-12">
                 <div class="self-center md:hidden max-md:w-32 text-lg">Thumbnail</div>
-                {#if showImage}
+                {#if item.file !== null}
                     <img bind:this={image} class="h-28 w-28 ml-4" alt="Thumbnail"  />
-                    <button on:click={()=> { showImage= false}} class="self-start w-[5%] -mt-3">
+                    <button on:click={()=> item.file = null} class="self-start w-[25px] -mt-3">
                         <img src={Cross} alt="">
                     </button>
                 {:else}
@@ -184,8 +186,8 @@ let innerWidth:number;
 
         {/if}
         {#if $setting.description}
-        <div class="flex pl-5">
-            <textarea class=" max-md:w-full md:w-[350px] lg:w-[400px] xl:w-[450px] max-md:mx-auto max-md:my-5 ml-4 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
+        <div class="flex">
+            <textarea bind:value={item.description} class=" max-md:w-full md:w-[350px] lg:w-[450px] xl:w-[550px] max-md:mx-auto max-md:my-5 focus:outline-none bg-inherit border-[1.5px] border-[#B7C2D3FF] mx-2 h-28 rounded-lg p-5" placeholder="Add description" />
         </div>
         {/if}
         <div class=" max-md:mx-auto max-md:my-5 md:ml-auto flex">

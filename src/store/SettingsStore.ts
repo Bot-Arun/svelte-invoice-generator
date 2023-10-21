@@ -34,7 +34,6 @@ export interface ProductData {
   name?:string,
   gst?:number,
   discount?:number,
-  type?:string,
   price?:number,
 }
 export interface DataMapping {
@@ -100,3 +99,5 @@ export const themeColors:Writable<Colors> = writable({
   secondaryFg: '#556172',
   secondaryBg: '#F8FAFF',
 })
+
+export const record:Writable<string[]> = writable(['',''])

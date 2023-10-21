@@ -12,6 +12,7 @@
             file:null,
             gst:0,
             name:'',
+            description:'',
             price:0,
             quantity:1,
             total:0,
@@ -29,9 +30,6 @@
             Item
         </div>
         {#if innerWidth >= 768}
-            <div class="flex-1">
-                 Type
-            </div>
             <div class="flex-1">
                 Qty
             </div>
@@ -59,7 +57,7 @@
     </div>
 
 {#each data as item,index }
-    <FormItem bind:item={item} {index} bind:data={data} ></FormItem>
+    <FormItem bind:item={item} index={index} bind:data={data} ></FormItem>
 {/each}
 
 <button on:click={handleInsertLast} class="flex justify-center w-full mt-3  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 my-border border-r-0 bg-secondary-bg hover:bg-gray-100 text-sm text-primary-fg font-semibold" >ADD NEW LINE ITEM</button>

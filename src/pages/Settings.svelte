@@ -15,7 +15,6 @@
   function addNewVariable() {
     $variables = [...$variables,['',['']]]
   }
-  
   function newVariable(code:string,index:number) {
     if(code=="Enter") {
       $variables[index][0] = tempVariableName ;
@@ -49,7 +48,7 @@
 
 <div class=" flex bg-[#f3f5f7] md:py-32">
   <div class="fixed top-5 right-5 md:left-10 md:top-10">
-  <Link to='/'><img src={back} alt=""></Link> 
+  <button on:click={()=> history.back()}><img src={back} alt=""></button> 
   </div>
   <main class="text-black justify-center px-4 md:px-10 py-10 flex-col mx-auto shadow-lg w-[1024px] bg-white flex ">
     <div class="text-4xl font-semibold">
@@ -107,7 +106,7 @@
     <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
       <div class=" md:w-1/2 p-10">
         <div class="flex">
-          <div class="font-semibold pb-3">CUSTOM VARIABLES</div>
+          <div id='variable' class="font-semibold pb-3">CUSTOM VARIABLES</div>
           <button class="ml-auto text-primary-fg" on:click={addNewVariable} >+ Add new variable</button>
         </div>
         {#each $variables as item,index}

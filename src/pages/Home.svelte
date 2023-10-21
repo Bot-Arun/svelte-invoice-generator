@@ -9,14 +9,10 @@
   import DOC from '../assets/document.svg'
   import  {Link} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
-  import { clientData, setting ,client, variables, terms } from '../store/SettingsStore';
+  import { clientData, setting ,client, variables, terms, record } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   let attachmentInput:HTMLInputElement;
-  let discounts :charge[] = $formData.deductions;
-  let extraCharges:charge[] = $formData.aditionalCharges;
-  let total:number  = $formData.total ;
   let input :HTMLInputElement ;
-  let showImage =false ;
   let image : HTMLImageElement;
 
   let ind = 0;
@@ -44,22 +40,22 @@
     }
   $: {
     if($formData.items.length) {
-        total = $formData.items.map(x => x.total).reduce((x,y) => x +y);
+        $formData.total = $formData.items.map(x => x.total).reduce((x,y) => x +y);
     }
   }
   function addDiscount(){
-    discounts = [...discounts,{name:'Discount',chargeType:'%',amount:0}]
+    $formData.deductions = [...$formData.deductions,{name:'Discount',chargeType:'%',amount:0}]
   }
   function addAdditionalCharges(){
-    extraCharges = [...extraCharges,{name:'Additional Charge',chargeType:'%',amount:0}]
+    $formData.aditionalCharges = [...$formData.aditionalCharges,{name:'Additional Charge',chargeType:'%',amount:0}]
   }
   function removeDiscount(index:number) {
-    discounts.splice(index,1);
-    discounts = [...discounts]
+    $formData.deductions.splice(index,1);
+    $formData.deductions = [...$formData.deductions]
   }
   function removeAdditionalCharges(index:number) {
-    extraCharges.splice(index,1);
-    extraCharges = [...extraCharges];
+    $formData.aditionalCharges.splice(index,1);
+    $formData.aditionalCharges = [...$formData.aditionalCharges];
   }
   function swapTerms(index:number) {
     let temp = $formData.terms[index]
@@ -78,7 +74,6 @@
         $formData.signature = input.files ? input.files[0]:null;
 		
         if ($formData.signature ) {
-            showImage = true;
             const reader = new FileReader();
             reader.addEventListener("load", function () {
                 image.setAttribute("src", reader.result as string);
@@ -86,7 +81,6 @@
             reader.readAsDataURL($formData.signature);
             return;
         } 
-		showImage = false; 
     }
     function getExtension(file:File) {
         const parts = file?.name.split('.') ?? [];
@@ -106,12 +100,23 @@
     }
   $: {
     let val = $formData.items.reduce((x,y) => x+ y.total,0)
-    let totalDiscountPercent = discounts.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
-    let totalDiscountAmount = discounts.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
+    let totalDiscountPercent = $formData.deductions.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
+    let totalDiscountAmount = $formData.deductions.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
     val = val*(1 - totalDiscountPercent/100) - totalDiscountAmount ;
-    let totalExtraChargePercent = extraCharges.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
-    let totalExtraChargeAmount = extraCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
-    total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
+    let totalExtraChargePercent = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
+    let totalExtraChargeAmount = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
+    $formData.total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
+    }
+    $:{
+        if ($formData.signature) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            image.src = e.target?.result as string ;
+        };
+
+        reader.readAsDataURL($formData.signature);
+    }
     }
     onMount(()=>{
         $formData.terms=[...$terms] ;  ;
@@ -147,14 +152,18 @@
                     <div class="flex-1 bg-secondary-bg py-4 px-3 mx-2 rounded-xl"> 
                         <div class="text-lg text-secondary-fg py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
-                            {#each $variables as variable}
-                                <select class="focus:outline-none mt-5 border-b pb-2 w-full text-lg border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
+                            {#each $variables as variable,index}
+                                <select bind:value={$record[index]} class="focus:outline-none mt-5 border-b pb-2 w-full text-lg border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                 <option value="" disabled selected >{variable[0]}</option>
                                 {#each variable[1] as value}
                                     <option>{value}</option>
                                 {/each}
                                 </select>
                             {/each}
+                            <a href='/setting#variable' >
+                                <div class="text-primary-fg mt-10">+ Add variable</div>
+                            </a>
+
                         </div>
                     </div>
                     <div  class=" mt-5 sm:mt-0 flex-1 bg-secondary-bg px-2 mx-2"> 
@@ -187,17 +196,9 @@
                 <Form bind:data={$formData.items}/>
 
                 <div class="flex " >
-                    <!-- <div class="ml-5 flex flex-col">
-                        <div class="text-3xl mt-10 font-semibold"> Settings</div>
-                        <div class="flex flex-col mt-5">
-                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.autoMode}> <span>Automatic</span></div>
-                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.thumbnail}> <span>show thumbnail</span></div>
-                            <div class="mt-3"><input type="checkbox" bind:checked={$setting.description}> <span>show description</span></div>
-                        </div>
-                    </div> -->
                     <div class="max-sm:flex-1 px-3 max-sm:mx-auto sm:ml-auto  mt-5">
                         <div class="">
-                            {#each discounts as discount,index}
+                            {#each $formData.deductions as discount,index}
                             <div class="flex mt-7">
                                     <input bind:value={discount.name} class="bg-inherit rounded-none border-b-gray-400 focus:border-b-primary-fg border-b w-40 focus:outline-none self-center text-xl mr-10" />
                                     <input bind:value={discount.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
@@ -209,7 +210,7 @@
                                 </div>
                                 {/each}
                             <div class="">
-                                {#each extraCharges as extraCharge,index}
+                                {#each $formData.aditionalCharges as extraCharge,index}
                                 <div class="flex  mt-7">
 
                                     <input bind:value={extraCharge.name} class="rounded-none border-b-gray-400 focus:border-b-primary-fg border-b w-40 focus:outline-none self-center text-xl mr-10"/>
@@ -231,14 +232,14 @@
                             <div class=" bg-green-500 sm:w-[350px]"></div>
                             <div class="flex font-semibold text-2xl mt-10 py-4 border-y border-[#B7C2D3FF] ">
                                <span>Total (INR)</span>
-                               <span class="ml-auto"> ₹ {total}</span> 
+                               <span class="ml-auto"> ₹ {$formData.total}</span> 
                             </div>
 
                         </div>
-                        {#if showImage}
+                        {#if $formData.signature !==null}
                             <div class="flex mt-5">
                                 <img bind:this={image} class="h-28 max-w-60" alt="Thumbnail"  />
-                                <button on:click={()=> { showImage= false}} class="self-start w-10  -mt-3 ">
+                                <button on:click={()=> $formData.signature = null} class="self-start w-10  -mt-3 ">
                                     <img src={Cross} alt="">
                                 </button>
                             </div>
@@ -252,7 +253,7 @@
                     {#if $setting.additionalNotes}
                         <div class="h-60 sm:mr-5 flex-1 p-5 bg-secondary-bg">
                             <div class="text-lg text-secondary-fg  py-2 font-semibold">ADDITIONAL NOTES</div>
-                            <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
+                            <textarea bind:value={$formData.notes} class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                         </div>
                     {/if}
                     {#if $setting.attachments}
@@ -310,9 +311,11 @@
                     <input type="checkbox" name="" id=""><span class="text-lg ml-4 ">Save the T&Cs for every next period</span>
                 </div>
                 <div class="flex-col w-full flex">
-                    <span class="text-white mt-10 bg-[#CC335F] text-lg self-center p-2 rounded-md "  >
-                        SAVE & CONTINUE
-                    </span>
+                    <Link to='/preview' class="self-center">
+                        <button class="text-white mt-10 bg-[#CC335F] text-lg  p-2 rounded-md "  >
+                            SAVE & CONTINUE
+                        </button>
+                    </Link>
                     <div class="text-black font-semibold self-center my-10">
                         Powered by NiForms
                     </div>
