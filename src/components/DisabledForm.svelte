@@ -6,7 +6,7 @@
     export let data:FormItemType[] ;
     
 </script>
-<div class="">
+<div class="mt-8">
     <div class="flex text-sm rounded-t text-white p-4 bg-primary-bg">
         <div class="w-[35%]">
             Item

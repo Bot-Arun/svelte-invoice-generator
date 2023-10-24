@@ -17,12 +17,11 @@ function updateLocalStorage<T>(key: string, value: T) {
 }
 
 export const setting = writable(getFromLocalStorage('setting', {
-  autoMode: false,
-  thumbnail: true,
+  thumbnail: false,
   description: true,
   discount: true,
-  additionalNotes: true,
-  attachments: true,
+  additionalNotes: false,
+  attachments: false,
   GST: true,
 }));
 
@@ -78,9 +77,14 @@ export const clientURL:Writable<string> = writable('https://dummyjson.com/users'
 
 export const itemURL:Writable<string> = writable('https://dummyjson.com/products')
 
-export const variables:Writable<[string,string[]][]> = writable([
-  ['myVariable',['value1','value2']],
-  ['Return Reason',['reason 1','reason 2']]
+export interface Variable {
+  name:string;
+  values:string[];
+}
+
+export const variables:Writable<Variable[]> = writable([
+  {name:'myVariable',values:['value1','value2']},
+  {name:'Return Reason',values:['reason 1','reason 2']},
 ])
 
 export const terms:Writable<string[]> = writable(['Please pay within 15 days from the date of invoice, overdue interest @ 14% will be charged on delayed payments.','Please quote invoice number when remitting funds.'])
@@ -94,10 +98,23 @@ export interface Colors {
 
 
 export const themeColors:Writable<Colors> = writable({
-  primaryFg: '#6C40D1',
-  primaryBg: '#221148',
+  primaryFg: '#018d00',
+  primaryBg: '#014751',
   secondaryFg: '#556172',
-  secondaryBg: '#F8FAFF',
+  secondaryBg: '#f3fcf3',
 })
 
 export const record:Writable<string[]> = writable(['',''])
+
+
+export interface Template {
+  name:string;
+  business:string;
+  other:string;
+}
+
+export const template:Writable<Template> = writable({
+  name:'INVOICE',
+  business:'SEVENTY TWO PHARMA OMNICARE PVT LTD',
+  other:'NO. 31 & 33, C.M.C Road, Senjal, Karaikudi'
+})

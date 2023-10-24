@@ -2,7 +2,7 @@
     import { type FormItemType } from '../store/FormStore';
     import {setting} from '../store/SettingsStore'
     import FormItem from './FormItem.svelte';
-
+    export let validate:boolean;
     export let data:FormItemType[] ;
     function handleInsertLast() {
         const value = {
@@ -57,7 +57,7 @@
     </div>
 
 {#each data as item,index }
-    <FormItem bind:item={item} index={index} bind:data={data} ></FormItem>
+    <FormItem {validate} bind:item={item} index={index} bind:data={data} ></FormItem>
 {/each}
 
 <button on:click={handleInsertLast} class="flex justify-center w-full mt-3  focus:bg-[#e5ecf7] p-3 border-dashed bg- border-violet-300 my-border border-r-0 bg-secondary-bg hover:bg-gray-100 text-sm text-primary-fg font-semibold" >ADD NEW LINE ITEM</button>

@@ -13,6 +13,8 @@
   import { clientData, setting ,client, variables, terms, record } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import DisabledForm from '../components/DisabledForm.svelte';
+  import BackButton from '../components/BackButton.svelte';
+  import Header from '../components/Header.svelte';
   let attachmentInput:HTMLInputElement;
   let total:number  = $formData.total ;
   let showImage =false ;
@@ -27,9 +29,9 @@
         const extension = parts[parts?.length-1]
         return extension;
     }
-    onMount(()=>{
-        $formData.terms=[...$terms] ;  ;
-    })
+    // onMount(()=>{
+    //     $formData.terms=[...$terms] ;
+    // })
 
     $:{
         if ($formData.signature) {
@@ -44,34 +46,20 @@
     }
   
 </script>
-<style>
-    .my-border {
-        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='20' ry='20' stroke='%23E6E6E6FF' stroke-width='3' stroke-dasharray='7%2c 20' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
-        border-radius: 20px;
-    }
-</style>
 <div id='mine' class="bg-[#f3f5f7] min-w-[1024px]  w-full ">
     <div class="fixed top-5 right-5 md:left-10 md:top-10">
-    <button class=" print:hidden " on:click={()=> history.back()}><img src={back} alt=""></button> 
+    <button class=" print:hidden " on:click={()=> history.back()}><BackButton></BackButton></button> 
     </div>
     <main  class="text-black flex print:py-0">
         <div id='main'   class="flex flex-col min-w-[1024px] w-[1024px] mx-auto bg-white print:shadow-none shadow-lg">
-            <div class="flex justify-between text-white bg-primary-bg py-5">
-                <div class=" px-8 py-8 font-light text-sm">
-                    <div class="text-3xl  font-bold">QUOTATION</div>
-                    <div class="mt-2">Business Name</div>
-                    <div class="mt-2">Address Line 1</div>
-                    <div class="mt-2 text-sm">Phone no | Email | GST no </div>
-                </div>
-                <div class=" text-center  my-7 p-10 flex my-border mr-3 mx-8" > <span class="self-center text-xl font-light flex-wrap">Add Logo</span> </div>
-            </div>
+            <Header/>
             <div class="px-8 flex flex-col">
                 <div class="flex mt-8">
                     <div class="flex-1 bg-secondary-bg py-4 px-3 mx-2 rounded-xl"> 
                         <div class="text-lg text-secondary-fg py-2 font-semibold">RECORD INFORMATION</div>
                         <div class="p-4 pb-10">
                             {#each $record as item}
-                                <div class="mt-5 pb-2 w-full text-lg ">
+                                <div class="border-b border-gray-400 mt-5 pb-2 w-full text-lg ">
                                     {item}
                                 </div>
                             {/each} 
@@ -82,24 +70,24 @@
                             <div class="text-lg text-secondary-fg  py-2 font-semibold">CLIENT INFORMATION</div>
                             <div class="p-4 relative z-50 pb-10">
                                 {#if $client.name}
-                                    <input disabled class="rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" value={$client.name}   type="text">
+                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" value={$client.name}   type="text">
                                 {/if}
                                 {#if $client.business}
-                                    <input disabled class="rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.business} placeholder="Business name" type="text">
+                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.business} placeholder="Business name" type="text">
                                 {/if}
                                 {#if $client.email}
-                                    <input disabled class="rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.email} placeholder="Email id" type="email">
+                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.email} placeholder="Email id" type="email">
                                 {/if}
                                 <div class="flex">
                                     {#if $client.phno}
-                                        <input disabled class="rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.phno} placeholder="Phone no" type="text">
+                                        <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.phno} placeholder="Phone no" type="text">
                                     {/if}
                                     {#if $client.gstno}
-                                        <input disabled class="rounded-none ml-4 focus:outline-none mt-5  pb-2 w-fullfocus:border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.gstno} placeholder="GST no" type="text">
+                                        <input disabled class="border-b border-gray-400 rounded-none ml-4 focus:outline-none mt-5  pb-2 w-full focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.gstno} placeholder="GST no" type="text">
                                     {/if}
                                 </div>
                                 {#if $client.address}
-                                    <input bind:this={next} class="rounded-none focus:outline-none mt-5 pb-2 w-fullfocus:border-primary-fg bg-inherit placeholder-[#B7C2D3] "value={$client.address} placeholder="Address" type="text">
+                                    <input bind:this={next} class="border-b border-gray-400 rounded-none focus:outline-none mt-5 pb-2 w-full focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "value={$client.address} placeholder="Address" type="text">
                                 {/if}
                             </div>
                         </div>
@@ -113,11 +101,11 @@
                         <div class="break-inside-avoid">
                             {#each $formData.deductions as discount}
                             <div class="flex mt-7">
-                                    <input disabled value={discount.name} class="bg-inherit rounded-none w-40 focus:outline-none self-center text-xl mr-10" />
-                                    <div class="rounded-none ml-auto focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] " >
+                                    <input disabled value={discount.name} class="border-b border-gray-400 bg-inherit rounded-none w-40 focus:outline-none self-center text-xl mr-10" />
+                                    <div class="border-b border-gray-400 rounded-none ml-auto focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] " >
                                         {discount.amount}
                                     </div>
-                                    <div class="rounded-none ml-5 focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] ">
+                                    <div class="border-b border-gray-400 rounded-none ml-5 focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] ">
                                         {discount.chargeType}
                                     </div>
                                 </div>
@@ -125,11 +113,11 @@
                             <div class="">
                                 {#each $formData.aditionalCharges.filter( x => x.name !== '') as extraCharge}
                                 <div class="flex  mt-7">
-                                    <input disabled value={extraCharge.name} class="bg-inherit rounded-none w-40 focus:outline-none self-center text-xl mr-10" />
-                                    <div class="rounded-none ml-auto focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] " >
+                                    <input disabled value={extraCharge.name} class="border-b border-gray-400 bg-inherit rounded-none w-40 focus:outline-none self-center text-xl mr-10" />
+                                    <div class="border-b border-gray-400 rounded-none ml-auto focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] " >
                                         {extraCharge.amount}
                                     </div>
-                                    <div class="rounded-none ml-5 focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] ">
+                                    <div class="border-b border-gray-400 rounded-none ml-5 focus:outline-none pb-2 w-12 bg-inherit placeholder-[#B7C2D3] ">
                                         {extraCharge.chargeType}
                                     </div>
                                 </div>
@@ -189,9 +177,9 @@
                 <div class="w-full mt-16 p-5 bg-secondary-bg break-inside-avoid">
                     <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
                     {#each $formData.terms as item,index}
-                        <div class="flex pb-2 mt-5">
-                            <span class="self-center  mr-2">{index+1}.</span>
-                            <input disabled type="text" value={item} class=" focus:outline-none w-full border-gray-400 focus:border-primary-fg bg-inherit placeholder-[#B7C2D3]"/>
+                        <div class="flex pb-2 mt-5 ">
+                            <span class="self-center mr-2 ">{index+1}.</span>
+                            <input disabled type="text" value={item} class="border-b focus:outline-none w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"/>
                         </div>
                     {/each}
                 </div>

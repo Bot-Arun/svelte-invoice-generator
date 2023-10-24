@@ -21,34 +21,34 @@
         <div class="w-[35%] p-1 flex">
             <div class="relative w-full">
                 <div class="flex">
-                    <span class="-left-2 self-center max-md:text-xl absolute max-sm:-left-4 max-md:-left-6">{index+1}. </span>
-                    <div class=" rounded-none pl-2 focus:outline-none border-0 bg-inherit py-2 pr-2 w-full">{item.name}</div>
+                    <div class="border-b border-gray-400 rounded-none pl-2 focus:outline-none border-0 bg-inherit py-2 pr-2 w-full">{index+1}. {item.name}</div>
                 </div>
-                
             </div>
         </div>
         <div class=" flex-1 p-1 flex ">
-            <input disabled class=" rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-full"  type="number" min="1" value={item.quantity} >
+            <input disabled class="border-b border-gray-400 rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-full"  type="number" min="1" value={item.quantity} >
         </div>
 
-        <div class=" flex-1 p-1 flex"> <span class="self-center pr-1">₹</span>
-            <input disabled class="rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-full" type="text" value={item.price} >
-        </div>
+        <divd class=" flex-1 p-1 flex"> 
+            <div class="border-b border-gray-400 rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-full">
+                ₹ {item.price}
+            </div>
+        </divd>
         {#if $setting.discount}
             <div class="flex-1 p-1 flex">
-                <div class="rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-fit " >
+                <div class="border-b border-gray-400 rounded-none focus:outline-none border-0 bg-inherit py-2 pr-2 w-full " >
                 {item.discount} {item.discountType}
                 </div>
             </div>
         {/if}
         {#if $setting.GST}
             <div class="flex-1 p-1 flex">
-                <div class="rounded-none focus:outline-none py-2 pr-2 w-full"><span class="self-center pr-1">{item.gst} %</span>
+                <div class="border-b border-gray-400 rounded-none focus:outline-none py-2 pr-2 w-full"><span class="self-center pr-1">{item.gst} %</span>
                 </div>
             </div>
         {/if}
         <div class="flex-1 p-1 flex">
-            <input disabled class="rounded-none focus:outline-none bg-inherit py-2 pr-2 w-full" type="text" value={item.total} >
+            <input disabled class="border-b border-gray-400 rounded-none focus:outline-none bg-inherit py-2 pr-2 w-full" type="text" value={item.total} >
         </div>
     </div>
     <div class="mt-5 flex ">
@@ -62,7 +62,7 @@
         {/if}
         {#if $setting.description && item.description }
         <div class="flex">
-            <div class=" w-[550px] focus:outline-none border-0 bg-inherit border-[#B7C2D3FF] mx-2 h-28 rounded-lg py-5" >
+            <div class="w-[550px] focus:outline-none border p-4 border-gray-400 bg-inherit border-[#B7C2D3FF] mx-2 min-h-[60px] rounded-md py-5" >
                 {item.description}
             </div>
 
