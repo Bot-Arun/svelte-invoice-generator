@@ -6,18 +6,26 @@
   import Setting from './pages/Settings.svelte';
   import Login from './pages/Login.svelte';
   import Home from './pages/Home.svelte';
+  import CreateTemplate from './pages/CreateTemplate.svelte';
   export let url = '';
 </script>
 <div id='body' class='mine'  style=" --primary-fg:{$themeColors.primaryFg};--primary-bg:{$themeColors.primaryBg};
 --secondary-fg:{$themeColors.secondaryFg};--secondary-bg:{$themeColors.secondaryBg};
 " >
   <Router {url}>
-    <Route path="/form" component={FormPage} />
-    <Route path="/setting" component={Setting} />
-    <Route path="/preview" component={Preview} />
+    <Route path="/:id/form" let:params >
+      <FormPage templateId={params.id} />
+    </Route>
+    <Route path="/:id/setting" let:params >
+      <Setting templateId={params.id} />
+    </Route>
+    <Route path="/:id/preview" let:params >
+      <Preview templateId={params.id} />
+    </Route>
     <Route path="/home" component={Home}/>
     <Route path="/login" component={Login}/>
-    <Route path="/"><Home/></Route>
+    <Route path="/createTemplate" component={CreateTemplate}/>
+    <Route path="/"><Login/></Route>
   </Router>
 </div>
   

@@ -23,7 +23,7 @@
 </script>
 
 <svelte:window bind:innerWidth />
-<div>
+<div class="my-4 mt-10">
     <div>
         <div class="flex text-sm rounded-t text-white p-4 bg-primary-bg">
         <div class="w-[35%]">

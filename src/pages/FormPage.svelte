@@ -9,11 +9,14 @@
   import DOC from '../assets/document.svg'
   import  {Link, navigate, useHistory} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
-  import { clientData, setting ,client, variables, terms, record, template, productData } from '../store/SettingsStore';
+  import { clientData, setting ,client, variables, terms, record, template, productData, itemURL, clientDataMapping, clientURL, productDataMapping } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import SettingButton from '../components/SettingButton.svelte';
   import Header from '../components/Header.svelte';
   import BackButton from '../components/BackButton.svelte';
+  import { getData } from '../api/api';
+
+  export let templateId:string;
   let attachmentInput:HTMLInputElement;
   let input :HTMLInputElement ;
   let image : HTMLImageElement;
@@ -22,6 +25,7 @@
   let filterdArray : any[] =[];
   let focus =true ;
   let validate = false;
+  $:$formData.terms = [...$terms]
   $: filterdArray, ind = 0 ;
   function changeFocus(code:string) {
     if (code==="ArrowDown" && filterdArray.length >0)
@@ -121,9 +125,74 @@
         if(errors.length)
             document?.getElementById('my_modal_3')?.showModal()
         else
-            navigate('/preview');    
+            navigate( `/${templateId}/preview`);    
     }
 
+    let ItemData :any = [];
+async function getItemData(){ 
+    try {
+        let data  = await fetch($itemURL).then(x => x.json()).then(x => x.products);
+        if (data===undefined )
+        throw Error();
+        ItemData = data;
+    }
+    catch (error) {
+        ItemData= []
+    }
+    console.log(ItemData)
+}
+
+let CustomerData :any = [];
+onMount(async()=>{
+    await Promise.all([
+        getClientData(),
+        getItemData(),
+    ])
+})
+async function getClientData(){
+    try {
+        let data = await fetch($clientURL).then(x => x.json()).then(x => x.users);
+        if (data===undefined ) 
+        throw Error();
+        CustomerData = data;
+    }
+    catch (error) {
+        CustomerData = []
+    }
+}
+
+$:{ 
+    if($productDataMapping.length > 0) {
+        $productData = ItemData.map((x:any) => {
+        let obj :any ={};
+        $productDataMapping.map(({from,to})=>{
+            if(to==='name')
+            obj[to] = ''+x[from];
+            else 
+            obj[to] = ''+x[from];
+
+        })
+        return obj;
+        }
+        )
+    }
+}
+
+$:{ 
+    if($clientDataMapping.length > 0) {
+        $clientData = CustomerData.map((x:any) => {
+        let obj:any ={} ;
+        $clientDataMapping.map(({from,to})=>{
+            if(to==='name')
+            obj[to] = ''+x[from];
+            else 
+            obj[to] = ''+x[from];
+        })
+        return obj;
+        }
+        )
+    }
+}
 
 
   $: {
@@ -142,12 +211,47 @@
         reader.onload = function (e) {
             image.src = e.target?.result as string ;
         };
-
         reader.readAsDataURL($formData.signature);
     }
     }
-    onMount(()=>{
-        $formData.terms=[...$terms] ;  ;
+    onMount(async ()=>{
+        const {payload:data} = await getData('/templates/getTemplate/'+templateId);
+        $template.name = data.templateName;
+        $template.business = data.businessName;
+        $template.other = data.otherInfo;
+        $setting.discount = data.settings.includeDiscount
+        $setting.GST = data.settings.includeGST;
+        $setting.description = data.settings.includeItemDescription;
+        $setting.additionalNotes = data.settings.includeAdditionalNotes
+        $setting.attachments = data.settings.includeAttachments;
+        $variables = data.customVariables.map(x => {
+            return {
+                name: x.variableName,
+                values: x.variableValues
+            };
+        });
+
+        $itemURL = data.dataMapping.clientInformation.dataUrl;
+
+        $clientDataMapping = data.dataMapping.clientInformation.mappedData.map(x => {
+            return {
+                from: x.urlFieldName,
+                to: x.templateFieldName
+            };
+        });
+
+        $clientURL = data.dataMapping.itemMapping.dataUrl;
+
+        $productDataMapping = data.dataMapping.itemMapping.mappedData.map(x => {
+            return {
+                from: x.urlFieldName,
+                to: x.templateFieldName
+            };
+        });
+
+        $terms = data.dataMapping.terms.map(x => x.value);
+        console.log($terms)
+        console.log('finished');
     })
 </script>
 <style>
@@ -158,10 +262,10 @@
 </style>
 <div class="bg-[#f3f5f7] min-h-screen">
     <div class="fixed left-5 bottom-5 sm:bottom-10 sm:left-10 z-10">
-    <Link to='/setting'><SettingButton/></Link>
+    <Link to='{templateId}/setting'><SettingButton/></Link>
     </div>
     <div class="fixed top-5 right-5 md:left-10 md:top-10">
-        <button on:click={()=> history.back()}><BackButton/></button> 
+        <Link to='/home'><BackButton/></Link> 
     </div> 
     <main class="text-black justify-center flex md:py-40">
         <div class="flex flex-col w-[1024px] bg-white  shadow-lg">
@@ -184,7 +288,7 @@
                                 {/if}
                             {/each}
                             <div class="text-primary-fg mt-10">
-                                <Link to='/setting' >+ Add variable</Link>
+                                <Link to='/{templateId}/setting' >+ Add variable</Link>
                             </div>
 
                         </div>
@@ -213,9 +317,6 @@
                     </div>
                 </div>
                 
-                <div class="p-4">
-                    <input type="checkbox"/> <span class="ml-2"> Add additional details</span>
-                </div>
                 <Form {validate} bind:data={$formData.items}/>
 
                 <div class="flex " >
@@ -236,7 +337,7 @@
                                 {#each $formData.aditionalCharges as extraCharge,index}
                                 <div class="flex  mt-7">
 
-                                    <input bind:value={extraCharge.name} class="rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"/>
+                                    <input bind:value={extraCharge.name} class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"/>
                                     <input bind:value={extraCharge.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
                                     <select bind:value={extraCharge.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
@@ -329,10 +430,7 @@
                     {/each}
                     <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
                 </div>
-                <div class="mt-10 max-sm:mx-auto">
-                    <input type="checkbox" name="" id=""><span class="text-lg ml-4 ">Save the T&Cs for every next period</span>
-                </div>
-                <div class="flex-col w-full flex">
+                <div class="mt-10 flex-col w-full flex">
                     <button on:click={validateForm} class="text-white mt-10 mx-auto bg-[#CC335F] text-lg  p-2 rounded-md "  >
                         SAVE & CONTINUE
                     </button>

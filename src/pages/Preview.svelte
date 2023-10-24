@@ -8,13 +8,16 @@
   import PDF from '../assets/pdf.svg'
   import XLS from '../assets/xls.svg'
   import DOC from '../assets/document.svg'
-  import  {Link} from 'svelte-routing'
+  import  {Link, navigate} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
   import { clientData, setting ,client, variables, terms, record } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import DisabledForm from '../components/DisabledForm.svelte';
   import BackButton from '../components/BackButton.svelte';
   import Header from '../components/Header.svelte';
+  import { postData } from '../api/api';
+
+  export let templateId:string;
   let attachmentInput:HTMLInputElement;
   let total:number  = $formData.total ;
   let showImage =false ;
@@ -29,9 +32,80 @@
         const extension = parts[parts?.length-1]
         return extension;
     }
-    // onMount(()=>{
-    //     $formData.terms=[...$terms] ;
-    // })
+    async function onSubmit() {
+        const data = await postData('/forms/create',{
+            "formNo": "Form Number",
+            "templateId": templateId,
+            "templateName": "Template ID",
+            "orgId": "OrgID",
+            "recordInformation": {
+                "recordName": "Record Name",
+                "recordData": $record.map((x,y) => {
+                    return {
+                        "key": $variables[y].name,
+                        "value": x,
+                        "typeData": "string"
+                    }
+                })
+            },
+            "clientInformation": [
+                {
+                "key": "Key",
+                "value": "Value",
+                "typeData": "string"
+                }
+            ],
+            "itemDetails":$formData.items.map(x=> {
+                return {
+                    "item": x.name,
+                    "type": "type",
+                    "qty": x.quantity,
+                    "price": x.price,
+                    "discount": {
+                        "value": x.discount,
+                        "typeData": x.discountType==='%'?'Percentage':'Rupees'
+                    },
+                    "GST": 1,
+                    "total": 1,
+                    "thumbnail": "File url",
+                    "description": x.description
+                }  
+            }),
+            "price": {
+                "totalDiscount": {
+                "value": 1,
+                "typeData": "string"
+                },
+                "extraCharge": {
+                "value": 1,
+                "typeData": "string"
+                },
+                "additionalCharges": $formData.aditionalCharges.map(x => {
+                    return{
+
+                        "key": x.name,
+                        "value:":x.amount,
+                        "typeData":x.chargeType === '%'?"Percentage":"Rupees"
+                    }
+                }) ,
+                "totalAmount": $formData.total
+            },
+            "invoiceInfo": {
+                "signature": null,
+                "addtionalInfo": null,
+                "additionalAttachments": [
+                null
+                ],
+                "termsConditions": [
+                null
+                ],
+                "saveTermsConditions": false
+            }
+        })
+        console.log(data)
+        print();
+        navigate('/home')
+    }
 
     $:{
         if ($formData.signature) {
@@ -188,7 +262,7 @@
                         <button on:click={()=>print()} class="text-white mt-10 w-[200px] bg-[#CC335F] self-center p-2 rounded-md "  >
                             PRINT
                         </button>
-                        <button on:click={()=> print()} class="text-white mt-10 w-[200px] bg-[#CC335F] self-center p-2 rounded-md "  >
+                        <button on:click={()=> onSubmit()} class="text-white mt-10 w-[200px] bg-[#CC335F] self-center p-2 rounded-md "  >
                             SUBMIT & DOWNLOAD
                         </button>
                     </div>

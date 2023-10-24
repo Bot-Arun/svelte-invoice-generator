@@ -17,35 +17,24 @@
     itemURL,
     terms,
   } from "../store/SettingsStore";
-  import { formData } from "../store/FormStore";
-  import { postData } from "../api/api";
-  export let templateId:string;
+import { formData } from "../store/FormStore";
+import { postData } from "../api/api";
+import { navigate } from "svelte-routing";
   let ind = 0;
-  let color = { ...$themeColors };
-  let customVariable = [...$variables];
-  let settings = { ...$setting };
-  let productMapping = [...$productDataMapping];
-  let clientMapping = [...$clientDataMapping];
-  let products = [...$productData];
-  let clients = [...$clientData];
-  let clientUrl = $clientURL;
-  let itemUrl = $itemURL;
-  let Terms = [...$terms];
-  let formTemplate = { ...$template };
-  async function saveChanges() {
-    const result = await postData('/templates/update/'+templateId,{
-      "templateName": formTemplate.name,
-      "businessName": formTemplate.business,
-      "otherInfo": formTemplate.other,
+  async function createTemplate() {
+    const result = await postData('/templates/create',{
+      "templateName": $template.name,
+      "businessName": $template.business,
+      "otherInfo": $template.other,
       "settings": {
           "themeName": "string",
-          "includeDiscount": settings.discount,
-          "includeGST": settings.GST,
-          "includeItemDescription": settings.description,
-          "includeAdditionalNotes": settings.additionalNotes,
-          "includeAttachments": settings.attachments
+          "includeDiscount": $setting.discount,
+          "includeGST": $setting.GST,
+          "includeItemDescription": $setting.description,
+          "includeAdditionalNotes": $setting.additionalNotes,
+          "includeAttachments": $setting.attachments
       },
-      "customVariables":customVariable.map(x =>{
+      "customVariables":$variables.map(x =>{
           return {
               "variableName": x.name,
               "variableValues": x.values,
@@ -54,10 +43,10 @@
       "orgId": "OrgID",
       "dataMapping":{
           "clientInformation": {
-              "dataUrl": itemUrl,
+              "dataUrl": $itemURL,
               "isAuthRequired": false,
               "authDetails": false,
-              "mappedData": clientMapping.map(x => {
+              "mappedData": $clientDataMapping.map(x => {
                   return {
                       "urlFieldName": x.from,
                       "templateFieldName": x.to,
@@ -66,10 +55,10 @@
               })
           },
           "itemMapping": {
-              "dataUrl": clientUrl,
+              "dataUrl": $clientURL,
               "isAuthRequired": false,
               "authDetails": {},
-              "mappedData": productMapping.map(x => {
+              "mappedData": $productDataMapping.map(x => {
                   return {
                       "urlFieldName": x.from,
                       "templateFieldName": x.to,
@@ -77,72 +66,56 @@
                   }
               })
           },
-          "terms": Terms.map((x,y) => {
+          "terms": $terms.map((x,y) => {
               return {
                   value:x,
                   order:y,
               }
           })
       }
-    })
-    console.log(result);
-    $terms = Terms;
-    $setting = settings;
-    $itemURL = itemUrl;
-    $clientURL = clientUrl;
-    $productDataMapping = productMapping;
-    $clientDataMapping = clientMapping;
-    $variables = customVariable;
-    $themeColors = color;
-    $productData = products;
-    $clientData = clients;
-    setSuccess("changes saved");
+  })
+      navigate('/home');
   }
   let tempVariableName = "";
   let error = "";
-  let success = "";
   const setError = (msg: string) => {
     error = msg;
     setTimeout(() => (error = ""), 3000);
   };
-  const setSuccess = (msg: string) => {
-    success = msg;
-    setTimeout(() => (success = ""), 3000);
-  };
   $: $record = $variables.map((x) => "");
 
   function addNewVariable() {
-    customVariable = [...customVariable, { name: "", values: [""] }];
+    $variables = [...$variables, { name: "", values: [""] }];
   }
   function newVariable(code: string, index: number) {
     if (code == "Enter") {
-      customVariable[index].name = tempVariableName;
-      customVariable[index] = { ...customVariable[index] };
-      customVariable = [...customVariable];
-      ind = customVariable.length - 1;
+      $variables[index].name = tempVariableName;
+      $variables[index] = { ...$variables[index] };
+      $variables = [...$variables];
+      ind = $variables.length - 1;
     }
   }
 
   function removeVariable(index: number) {
-    if (customVariable.length > 1) customVariable.splice(index, 1);
-    else customVariable[0] = { name: "", values: [""] };
-    customVariable = [...customVariable];
+    if ($variables.length > 1) $variables.splice(index, 1);
+    else $variables[0] = { name: "", values: [""] };
+    $variables = [...$variables];
   }
 
   function addValue(index: number) {
-    customVariable[index].values.push("");
-    customVariable[index].values = [...customVariable[index].values];
-    customVariable[index] = { ...customVariable[index] };
-    customVariable = [...customVariable];
+    $variables[index].values.push("");
+    $variables[index].values = [...$variables[index].values];
+    $variables[index] = { ...$variables[index] };
+    $variables = [...$variables];
   }
   function removeValue(index: number) {
-    customVariable[ind].values.splice(index, 1);
-    customVariable[ind].values = [...customVariable[ind].values];
-    customVariable[ind] = { ...customVariable[ind] };
-    customVariable = [...customVariable];
+    $variables[ind].values.splice(index, 1);
+    $variables[ind].values = [...$variables[ind].values];
+    $variables[ind] = { ...$variables[ind] };
+    $variables = [...$variables];
   }
 
-  $: customVariable, customVariable.length - 1 < ind ? (ind -= 1) : ind;
+  $: $variables, $variables.length - 1 < ind ? (ind -= 1) : ind;
 </script>
 <style>
   .my-border {
@@ -160,78 +133,78 @@
     <div class="text-4xl font-semibold">TEMPLATE INFO</div>
     <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
       <div class="flex w-full">
-        <div class="p-10  w-1/2">
-        <div class="font-semibold pb-3">INFORMATION</div>
-            <div class=" mr-20">
-            <input
-                bind:value={formTemplate.name}
-                class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
-                placeholder="Template name"
-                type="text"
-            />
-            </div>
-            <div class="">
-            <input
-                bind:value={formTemplate.business}
-                class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
-                placeholder="Business name"
-                type="text"
-            />
-            </div>
-            <textarea
-                bind:value={formTemplate.other}
-                class="rounded-xl h-32 focus-border-primary-fg border-gray-400 focus:outline-none w-full bg-inherit border mt-6 p-5"
-                name=""
-                placeholder="Other information"
-                id=""
-                cols="30"
-                rows="5"
-            />
-        </div>
-        <div class='flex w-1/2'>
-            <div class="text-primary-fg  h-32 w-32 text-center  my-7 p-5 sm:p-10 flex my-border mr-3 sm:mx-8" > 
-                <span class="self-center font-medium flex-wrap text-lg ">Add Logo</span> 
-            </div>
-            <div class="flex-1 mt-5">
-            {#if $formData.signature !==null}
-                <img  class="h-28 max-w-60" alt="Thumbnail"  />
-                <button on:click={()=> $formData.signature = null} class="self-start w-10  -mt-3 ">
-                    <img src={Cross} alt="">
-                </button>
-            {:else}    
-                <input  accept="image/png, image/jpeg"  type="file"  id='sig' class="hidden"  />
-                <label for='sig' class="flex-1 my-border-2 w-full focus:bg-secondary-bg hover:bg-gray-100 h-20 p-2 text-primary-fg break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
-            {/if}
-            </div>
-        </div>
+          <div class="p-10  w-1/2">
+          <div class="font-semibold pb-3">INFORMATION</div>
+              <div class=" mr-20">
+              <input
+                  bind:value={$template.name}
+                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                  placeholder="Template name"
+                  type="text"
+              />
+              </div>
+              <div class="">
+              <input
+                  bind:value={$template.business}
+                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                  placeholder="Business name"
+                  type="text"
+              />
+              </div>
+              <textarea
+                  bind:value={$template.other}
+                  class="rounded-xl h-32 focus-border-primary-fg border-gray-400 focus:outline-none w-full bg-inherit border mt-6 p-5"
+                  name=""
+                  placeholder="Other information"
+                  id=""
+                  cols="30"
+                  rows="5"
+              />
+          </div>
+          <div class='flex w-1/2'>
+              <div class=" bg-black h-32 w-32 text-center  my-7 p-5 sm:p-10 flex my-border mr-3 sm:mx-8" > 
+                  <span class="self-center sm:text-xl font-light flex-wrap text-lg ">Add Logo</span> 
+              </div>
+              <div class="flex-1 mt-5">
+              {#if $formData.signature !==null}
+                  <img  class="h-28 max-w-60" alt="Thumbnail"  />
+                  <button on:click={()=> $formData.signature = null} class="self-start w-10  -mt-3 ">
+                      <img src={Cross} alt="">
+                  </button>
+              {:else}    
+                  <input  accept="image/png, image/jpeg"  type="file"  id='sig' class="hidden"  />
+                  <label for='sig' class="flex-1 my-border-2 w-full focus:bg-secondary-bg hover:bg-gray-100 h-20 p-2 text-primary-fg break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
+              {/if}
+              </div>
+          </div>
+      </div>
     </div>
-  </div>
     <div class="text-4xl font-semibold">SETTINGS</div>
     <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
       <div class=" md:w-1/2 p-10">
         <div class="font-semibold pb-3">FORM SETTINGS</div>
         <div class="flex mt-4">
-          <input type="checkbox" bind:checked={settings.discount} />
+          <input type="checkbox" bind:checked={$setting.discount} />
           <div class="ml-4">Include item discount</div>
         </div>
         <div class="flex mt-2">
-          <input type="checkbox" bind:checked={settings.GST} />
+          <input type="checkbox" bind:checked={$setting.GST} />
           <div class="ml-4">Include item GST</div>
         </div>
         <div class="flex mt-2">
-          <input type="checkbox" bind:checked={settings.thumbnail} />
+          <input type="checkbox" bind:checked={$setting.thumbnail} />
           <div class="ml-4">Include item image thumbnail</div>
         </div>
         <div class="flex mt-2">
-          <input type="checkbox" bind:checked={settings.description} />
+          <input type="checkbox" bind:checked={$setting.description} />
           <div class="ml-4">Include item description</div>
         </div>
         <div class="flex mt-2">
-          <input type="checkbox" bind:checked={settings.additionalNotes} />
+          <input type="checkbox" bind:checked={$setting.additionalNotes} />
           <div class="ml-4">Include additional notes</div>
         </div>
         <div class="flex mt-2">
-          <input type="checkbox" bind:checked={settings.attachments} />
+          <input type="checkbox" bind:checked={$setting.attachments} />
           <div class="ml-4">Include attachments</div>
         </div>
       </div>
@@ -241,19 +214,19 @@
         <div class="font-semibold pb-3">THEME SETTINGS</div>
         <div class="flex mt-4 justify-between">
           <div class="mr-4">primary foreground Color</div>
-          <input bind:value={color.primaryFg} id="primary" type="color" />
+          <input bind:value={$themeColors.primaryFg} id="primary" type="color" />
         </div>
         <div class="flex mt-4 justify-between">
           <div class="mr-4">primary background Color</div>
-          <input bind:value={color.primaryBg} id="primary" type="color" />
+          <input bind:value={$themeColors.primaryBg} id="primary" type="color" />
         </div>
         <div class="flex mt-4 justify-between">
           <div class="mr-4">secondary foreground Color</div>
-          <input bind:value={color.secondaryFg} id="primary" type="color" />
+          <input bind:value={$themeColors.secondaryFg} id="primary" type="color" />
         </div>
         <div class="flex mt-4 justify-between">
           <div class="mr-4">secondary background Color</div>
-          <input bind:value={color.secondaryBg} id="primary" type="color" />
+          <input bind:value={$themeColors.secondaryBg} id="primary" type="color" />
         </div>
       </div>
     </div>
@@ -265,7 +238,7 @@
             >+ Add new variable</button
           >
         </div>
-        {#each customVariable as item, index}
+        {#each $variables as item, index}
           <div class="flex mt-4">
             {#if item.name === ""}
               <button on:click={() => removeVariable(index)}
@@ -309,7 +282,7 @@
             >+ Add new value</button
           >
         </div>
-        {#each customVariable[ind].values as item, index}
+        {#each $variables[ind].values as item, index}
           <div class="flex mt-3">
             <span class="self-center mr-2">{index + 1}.</span>
             <input
@@ -328,20 +301,20 @@
     <div>
       <div class="my-5 text-4xl font-semibold">DATA MAPPING</div>
       <DataMapping
-        bind:Terms
-        bind:clientMapping
-        bind:clientUrl
-        bind:itemUrl
-        bind:clients
-        bind:productMapping
-        bind:products
+        bind:Terms={$terms}
+        bind:clientMapping={$clientDataMapping}
+        bind:clientUrl={$clientURL}
+        bind:itemUrl={$itemURL}
+        bind:clients={$clientData}
+        bind:productMapping={$productDataMapping}
+        bind:products={$productData}
         {setError}
       />
       <div class="flex mt-10">
         <button
-          on:click={saveChanges}
+          on:click={createTemplate}
           class="mx-auto px-6 py-2 bg-[#CC335F] rounded-lg text-base text-white"
-          >SAVE CHANGES</button
+          >CREATE AND CONTINUE</button
         >
       </div>
       <div class="text-center font-semibold my-10">Powered by NiForms</div>
@@ -366,27 +339,6 @@
             >
           </button>
           <span>{error}</span>
-        </div>
-      </div>
-    {/if}
-    {#if success}
-      <div class="fixed bottom-5 min-w-max w-full flex justify-center">
-        <div in:fly out:fade class=" w-[50%] alert alert-success">
-          <button on:click={() => (success = "")}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="stroke-current shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              ><path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              /></svg
-            >
-          </button>
-          <span>{success}!</span>
         </div>
       </div>
     {/if}

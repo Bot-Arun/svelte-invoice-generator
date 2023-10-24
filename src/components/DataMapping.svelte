@@ -52,14 +52,6 @@ async function getClientData(){
         CustomerData = []
     }
 }
-function addProductMapping() {
-    productMapping.push({from:'',to:''})
-    productMapping = [...productMapping];
-}
-function removeProductMapping(index:number) {
-    productMapping.splice(index,1)
-    productMapping = [...productMapping];
-}
 
 $:{ 
     if(productMapping.length > 0) {
@@ -75,17 +67,9 @@ $:{
         return obj;
         }
         )
-        products =[...products];
     }
 }
-function addClientMapping() {
-    clientMapping.push({from:'',to:''})
-    clientMapping = [...clientMapping];
-}
-function removeClientMapping(index:number) {
-    clientMapping.splice(index,1)
-    clientMapping = [...clientMapping];
-}
+
 $:{ 
     if(clientMapping.length > 0) {
         clients = CustomerData.map((x:any) => {
@@ -99,10 +83,24 @@ $:{
         return obj;
         }
         )
-        clients =[...clients];
     }
 }
-
+function addProductMapping() {
+    productMapping.push({from:'',to:''})
+    productMapping = [...productMapping];
+}
+function removeProductMapping(index:number) {
+    productMapping.splice(index,1)
+    productMapping = [...productMapping];
+}
+function addClientMapping() {
+    clientMapping.push({from:'',to:''})
+    clientMapping = [...clientMapping];
+}
+function removeClientMapping(index:number) {
+    clientMapping.splice(index,1)
+    clientMapping = [...clientMapping];
+}
 function swapTerms(index:number) {
     let temp = Terms[index]
     Terms[index] = Terms[index +1]

@@ -1,8 +1,7 @@
-<script lang="ts">
 import axios from 'axios';
   import { clientDataMapping, clientURL, itemURL, productDataMapping, setting, template, terms, variables } from '../store/SettingsStore';
 
-export const baseURL = 'http://127.0.0.1:5000'
+export const baseURL = 'https://niforms.neuui.com/api/v1'
 
 const instance = axios.create({
   baseURL
@@ -166,62 +165,61 @@ export const postForm = () => {
   })
 }
 
-export const postSetting = () => {
+// export const postSetting = () => {
 
-  postData('/setting',{
-    "_id": "string",
-    "templateName": $template.name,
-    "createddate": "date",
-    "modifieddate": "date",
-    "businessName": $template.business,
-    "otherInfo": $template.other,
-    "settings": {
-        "themeName": "string",
-        "includeDiscount": $setting.discount,
-        "includeGST": $setting.GST,
-        "includeItemDescription": $setting.description,
-        "includeAdditionalNotes": $setting.additionalNotes,
-        "includeAttachments": $setting.attachments
-    },
-    "customVariables":$variables.map(x =>{
-        return {
-            "variableName": x.name,
-            "variableValues": x.values,
-        }
-    })
-    ,
-    "dataMapping":{
-        "clientInformation": {
-            "dataUrl": $itemURL,
-            "isAuthRequired": false,
-            "authDetails": {},
-            "mappedData": $clientDataMapping.map(x => {
-                return {
-                    "urlFieldName": x.from,
-                    "templateFieldName": x.to,
-                    "type": "string"
-                }
-            })
-        },
-        "itemMapping": {
-            "dataUrl": $clientURL,
-            "isAuthRequired": "boolean",
-            "authDetails": {},
-            "mappedData": $productDataMapping.map(x => {
-                return {
-                    "urlFieldName": x.from,
-                    "templateFieldName": x.to,
-                    "type": "string"
-                }
-            })
-        },
-        "terms": $terms.map((x,y) => {
-            return {
-                value:x,
-                order:y,
-            }
-        })
-    }
-})
-}
-</script>
+//   postData('/setting',{
+//     "_id": "string",
+//     "templateName": $template.name,
+//     "createddate": "date",
+//     "modifieddate": "date",
+//     "businessName": $template.business,
+//     "otherInfo": $template.other,
+//     "settings": {
+//         "themeName": "string",
+//         "includeDiscount": $setting.discount,
+//         "includeGST": $setting.GST,
+//         "includeItemDescription": $setting.description,
+//         "includeAdditionalNotes": $setting.additionalNotes,
+//         "includeAttachments": $setting.attachments
+//     },
+//     "customVariables":$variables.map(x =>{
+//         return {
+//             "variableName": x.name,
+//             "variableValues": x.values,
+//         }
+//     })
+//     ,
+//     "dataMapping":{
+//         "clientInformation": {
+//             "dataUrl": $itemURL,
+//             "isAuthRequired": false,
+//             "authDetails": {},
+//             "mappedData": $clientDataMapping.map(x => {
+//                 return {
+//                     "urlFieldName": x.from,
+//                     "templateFieldName": x.to,
+//                     "type": "string"
+//                 }
+//             })
+//         },
+//         "itemMapping": {
+//             "dataUrl": $clientURL,
+//             "isAuthRequired": "boolean",
+//             "authDetails": {},
+//             "mappedData": $productDataMapping.map(x => {
+//                 return {
+//                     "urlFieldName": x.from,
+//                     "templateFieldName": x.to,
+//                     "type": "string"
+//                 }
+//             })
+//         },
+//         "terms": $terms.map((x,y) => {
+//             return {
+//                 value:x,
+//                 order:y,
+//             }
+//         })
+//     }
+// })
+// }

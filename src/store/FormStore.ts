@@ -1,5 +1,4 @@
 import { writable, type Writable } from "svelte/store";
-
 export interface FormItemType {
   name: string;
   discountType: string;
