@@ -1,4 +1,5 @@
 import { writable ,type Writable } from "svelte/store";
+import { formData, type UploadFile } from "./FormStore";
 
 export interface Setting {
     autoMode: boolean,
@@ -87,7 +88,7 @@ export const variables:Writable<Variable[]> = writable([
   {name:'Return Reason',values:['reason 1','reason 2']},
 ])
 
-export const terms:Writable<string[]> = writable(['Please pay within 15 days from the date of invoice, overdue interest @ 14% will be charged on delayed payments.','Please quote invoice number when remitting funds.'])
+export const terms:Writable<string> = writable('')
 
 export interface Colors {
   primaryFg: string,
@@ -99,7 +100,7 @@ export interface Colors {
 
 export const themeColors:Writable<Colors> = writable({
   primaryFg: '#018d00',
-  primaryBg: '#014751',
+  primaryBg: '#1f4851',
   secondaryFg: '#556172',
   secondaryBg: '#f3fcf3',
 })
@@ -111,10 +112,20 @@ export interface Template {
   name:string;
   business:string;
   other:string;
+  logo:UploadFile;
+  signature:UploadFile;
+  terms:string[];
 }
+
 
 export const template:Writable<Template> = writable({
   name:'INVOICE',
   business:'SEVENTY TWO PHARMA OMNICARE PVT LTD',
-  other:'NO. 31 & 33, C.M.C Road, Senjal, Karaikudi'
+  other:'NO. 31 & 33, C.M.C Road, Senjal, Karaikudi',
+  signature:{file:null,url:''},
+  logo:{file:null,url:''},
+  terms:[],
 })
+
+
+

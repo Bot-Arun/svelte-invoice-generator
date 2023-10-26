@@ -1,4 +1,4 @@
-<script lang='ts'>
+    <script lang='ts'>
     import { type FormItemType } from '../store/FormStore';
     import {setting} from '../store/SettingsStore'
     import FormItem from './FormItem.svelte';

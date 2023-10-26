@@ -33,29 +33,26 @@
         }
     });
     tab = tabs[0]
+    getFormData();
   })
   async function getFormData () {
     const result = await postData('/forms/getAllForms',{
         "sort": "asc",
         "sortField": "templateName",
         "keyword": "",
-        "pageSize": 10,
+        "pageSize": 100,
       "page": 1
     })
     console.log(result.payload.data)
     forms = result.payload.data ;
-    // .filter((x:any) => {
-    //     console.log(x.templateId,tab.id)
-    //     return x.templateId === tab.id});
-    console.log('lslkdfas')
   }
-  $: tab ,getFormData();
+  ;
 </script>
   
   
   <div class="bg-[#f3f5f7] min-h-screen">
       <main class="text-black justify-center flex md:py-10">
-          <div class="flex px-8 text-center h-screen flex-col w-[1024px] bg-white  shadow-lg">
+          <div class="flex px-8 text-center flex-col w-[1024px] bg-white  shadow-lg">
             <div class="flex text-left  leading-relaxed justify-between px-10 py-10 text-4xl font-semibold">
                 <div class="pt-5 capitalize">
                     Welcome,<br>
@@ -74,7 +71,7 @@
                     </button>
                     <button class="text-[#02E100] hover:opacity-70">OPTIONS</button>
                 </div> 
-                <div class="bg-secondary-bg" >
+                <div class="bg-secondary-bg mb-10" >
                     <div class="flex px-8 py-10" >
                         <input class="flex-1 border-2 rounded-md bg-inherit p-2 px-4 focus:outline-none" placeholder="Search your form here" type="text">
                         <button on:click={()=>document?.getElementById('my_modal_2')?.showModal()} class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold p-2" >GENERATE REPORT</button>
@@ -87,7 +84,7 @@
                         <div class="flex-1">Date</div>
                         <div class="flex-1">Version</div>
                         {#each forms as item}
-                             <!-- content here -->
+                             <!-- <div class="flex-1">{item.} </div> -->
                         {/each}
                         <div class="flex-1">Type</div>
                         <div class="flex-1">Created by</div>
@@ -95,20 +92,27 @@
                         <div class="flex-1">Value</div>
                         <div class="flex-1"></div>
                     </div>
-                    {#each forms as item}
-                    <div class="flex py-4">
-                        <div class="flex-1">1</div>
+                <div class="min-h-[200px]">
+
+                    {#each forms.filter((x)=> x.templateId === tab.id) as item,index}
+                    <Link to='/preview/{item._id}'>
+                    <div class="flex py-4 hover-bg-primary-bg">
+                        <div class="flex-1">{index+1}</div>
                         <div class="flex-1">{item._id.slice(0,7)}...</div>
                         <div class="flex-1">{new Date().toLocaleDateString('en-GB').split('/').join('-')}</div>
                         <div class="flex-1">1.0</div>
                         <div class="flex-1">Walk in</div>
                         <div class="flex-1">Sunil Kumar</div>
-                        <div class="flex-1">Raghuram 
-                            Agencies</div>
+                        <div class="flex-1">Raghuram </div>
                         <div class="flex-1">₹ {item.price.totalAmount}</div>
                         <div class="flex-1"></div>
                     </div>
+                    </Link>
+                    {:else}
+                         <div class=" text-3xl font-semibold text-secondary-fg py-14">No Items Found</div>
                     {/each}
+                </div>
+
                 </div> 
             </div>
       </main>

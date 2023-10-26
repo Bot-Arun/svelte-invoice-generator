@@ -7,6 +7,7 @@
   import Login from './pages/Login.svelte';
   import Home from './pages/Home.svelte';
   import CreateTemplate from './pages/CreateTemplate.svelte';
+  import SharablePreview from './pages/SharablePreview.svelte';
   export let url = '';
 </script>
 <div id='body' class='mine'  style=" --primary-fg:{$themeColors.primaryFg};--primary-bg:{$themeColors.primaryBg};
@@ -21,6 +22,9 @@
     </Route>
     <Route path="/:id/preview" let:params >
       <Preview templateId={params.id} />
+    </Route>
+    <Route path="/preview/:id" let:params >
+      <SharablePreview formId={params.id} />
     </Route>
     <Route path="/home" component={Home}/>
     <Route path="/login" component={Login}/>
@@ -44,8 +48,9 @@
   :global(.text-primary-fg) {
     color: var(--primary-fg);
   }
-  :global(.bg-primary-bg) {
+  :global(.bg-primary-bg, .hover-bg-primary-bg:hover) {
     background: var(--primary-bg);
+    color:white;
   }
   :global(.text-secondary-fg) {
     color: var(--secondary-fg);

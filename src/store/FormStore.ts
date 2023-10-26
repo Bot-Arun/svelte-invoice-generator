@@ -10,7 +10,10 @@ export interface FormItemType {
   description:string;
   total: number;
 }
-
+export interface UploadFile {
+  url:string;
+  file:File|null
+}
 
 export interface charge {
   chargeType:'%'| '₹',
@@ -26,7 +29,7 @@ export interface FormDataType {
   attachments :File[],
   notes:string,
   terms:string[],
-  signature:File|null,
+  signature:UploadFile,
 }
 
 
@@ -44,7 +47,7 @@ export const formData:Writable<FormDataType> = writable({
       total: 0,
     },
   ],
-  signature:null, 
+  signature:{url:'',file:null}, 
   deductions:[],
   total:0,
   notes:'',

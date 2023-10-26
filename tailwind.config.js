@@ -9,14 +9,7 @@ export default {
     "./src/**/*.{svelte,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        // 'primary-fg': $themeColors.primaryFg,
-        'primary-bg': '#221148',
-        'secondary-fg': '#556172',
-        'secondary-bg': '#F8FAFF',
-      },
-    },
+    
   },
   plugins: [require("daisyui")],
 }

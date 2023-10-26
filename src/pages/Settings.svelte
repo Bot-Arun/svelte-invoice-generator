@@ -15,10 +15,10 @@
     clientData,
     clientURL,
     itemURL,
-    terms,
   } from "../store/SettingsStore";
-  import { formData } from "../store/FormStore";
-  import { postData } from "../api/api";
+  import { postData,putData } from "../api/api";
+  import FileUpload from '../components/FileUpload.svelte'
+  import { formData, type UploadFile } from "../store/FormStore";
   export let templateId:string;
   let ind = 0;
   let color = { ...$themeColors };
@@ -30,13 +30,38 @@
   let clients = [...$clientData];
   let clientUrl = $clientURL;
   let itemUrl = $itemURL;
-  let Terms = [...$terms];
   let formTemplate = { ...$template };
   async function saveChanges() {
-    const result = await postData('/templates/update/'+templateId,{
+    let signatureUrl = '';
+    let logo
+    if(formTemplate.signature.file) {
+      const form = new FormData();
+      form.append('file', formTemplate.signature.file); 
+      const value = await postData('/uploads/uploadTemplateSignature/'+templateId,form,{
+          'Content-Type':'multipart/form-data',
+      },);
+      signatureUrl =value.payload.location;
+    }
+    else {
+      signatureUrl = formTemplate.signature.url;
+    }
+    if(formTemplate.logo.file) {
+      const form = new FormData();
+      form.append('file', formTemplate.logo.file); 
+      const value = await postData('/uploads/uploadTemplateLogo/'+templateId,form,{
+        'Content-Type':'multipart/form-data',
+      },);
+      logo =value.payload.location;
+    }
+    else {
+      logo = formTemplate.logo.url;
+    }
+    const result = await putData('/templates/update/'+templateId,{
       "templateName": formTemplate.name,
       "businessName": formTemplate.business,
       "otherInfo": formTemplate.other,
+      "templateLogo":logo,
+      "templateSignature":signatureUrl,
       "settings": {
           "themeName": "string",
           "includeDiscount": settings.discount,
@@ -51,7 +76,7 @@
               "variableValues": x.values,
           }
       }),
-      "orgId": "OrgID",
+      "orgId": "6532d0038159b139e9e4bbd0",
       "dataMapping":{
           "clientInformation": {
               "dataUrl": itemUrl,
@@ -77,7 +102,7 @@
                   }
               })
           },
-          "terms": Terms.map((x,y) => {
+          "terms": formTemplate.terms.map((x,y) => {
               return {
                   value:x,
                   order:y,
@@ -86,7 +111,9 @@
       }
     })
     console.log(result);
-    $terms = Terms;
+    $template = formTemplate;
+    $formData.terms = formTemplate.terms
+    $formData.signature = formTemplate.signature  
     $setting = settings;
     $itemURL = itemUrl;
     $clientURL = clientUrl;
@@ -97,6 +124,7 @@
     $productData = products;
     $clientData = clients;
     setSuccess("changes saved");
+    
   }
   let tempVariableName = "";
   let error = "";
@@ -110,7 +138,9 @@
     setTimeout(() => (success = ""), 3000);
   };
   $: $record = $variables.map((x) => "");
-
+  
+ $: console.log(formTemplate.logo)
+  
   function addNewVariable() {
     customVariable = [...customVariable, { name: "", values: [""] }];
   }
@@ -141,26 +171,20 @@
     customVariable[ind] = { ...customVariable[ind] };
     customVariable = [...customVariable];
   }
-
+  let temp = ''
   $: customVariable, customVariable.length - 1 < ind ? (ind -= 1) : ind;
 </script>
-<style>
-  .my-border {
-      background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='20' ry='20' stroke='%23E6E6E6FF' stroke-width='3' stroke-dasharray='7%2c 20' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
-      border-radius: 20px;
-  }
-</style>
-<div class=" flex flex-col bg-[#f3f5f7] md:py-32">
+<div class=" bg-[#f3f5f7] md:py-10">
   <div class="fixed top-5 right-5 md:left-10 md:top-10">
     <button on:click={() => history.back()}><BackButton /></button>
   </div>
   <main
-    class="text-black justify-center px-4 md:px-10 py-10 flex-col mx-auto shadow-lg w-[1024px] bg-white flex"
-  >
+    class="text-black justify-center   flex"
+  ><div class="flex flex-col bg-white px-4 md:px-10 py-10 mx-auto shadow-lg w-[1024px]">
     <div class="text-4xl font-semibold">TEMPLATE INFO</div>
     <div class="flex max-md:flex-col my-10 bg-secondary-bg md:px-10">
-      <div class="flex w-full">
-        <div class="p-10  w-1/2">
+      <div class="flex max-lg:flex-col w-full">
+        <div class="p-10  flex-1">
         <div class="font-semibold pb-3">INFORMATION</div>
             <div class=" mr-20">
             <input
@@ -188,21 +212,14 @@
                 rows="5"
             />
         </div>
-        <div class='flex w-1/2'>
-            <div class="text-primary-fg  h-32 w-32 text-center  my-7 p-5 sm:p-10 flex my-border mr-3 sm:mx-8" > 
-                <span class="self-center font-medium flex-wrap text-lg ">Add Logo</span> 
+        <div class='flex px-5 max-lg:flex-col flex-1 py-10'>
+            <div class="mt-10 mr-10" > 
+              <FileUpload className="h-32 w-32" text={'Add Logo'} bind:file={formTemplate.logo}  ></FileUpload> 
             </div>
-            <div class="flex-1 mt-5">
-            {#if $formData.signature !==null}
-                <img  class="h-28 max-w-60" alt="Thumbnail"  />
-                <button on:click={()=> $formData.signature = null} class="self-start w-10  -mt-3 ">
-                    <img src={Cross} alt="">
-                </button>
-            {:else}    
-                <input  accept="image/png, image/jpeg"  type="file"  id='sig' class="hidden"  />
-                <label for='sig' class="flex-1 my-border-2 w-full focus:bg-secondary-bg hover:bg-gray-100 h-20 p-2 text-primary-fg break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
-            {/if}
+            <div class="mt-10 flex-1 ">
+              <FileUpload className=" h-32" text={'Add Signature'} bind:file={formTemplate.signature} ></FileUpload> 
             </div>
+            
         </div>
     </div>
   </div>
@@ -328,7 +345,7 @@
     <div>
       <div class="my-5 text-4xl font-semibold">DATA MAPPING</div>
       <DataMapping
-        bind:Terms
+        bind:Terms={formTemplate.terms}
         bind:clientMapping
         bind:clientUrl
         bind:itemUrl
@@ -346,6 +363,7 @@
       </div>
       <div class="text-center font-semibold my-10">Powered by NiForms</div>
     </div>
+  </div>
   </main>
   <div>
     {#if error}

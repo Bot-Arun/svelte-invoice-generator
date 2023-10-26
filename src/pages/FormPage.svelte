@@ -14,7 +14,8 @@
   import SettingButton from '../components/SettingButton.svelte';
   import Header from '../components/Header.svelte';
   import BackButton from '../components/BackButton.svelte';
-  import { getData } from '../api/api';
+  import { getData, getTemplate } from '../api/api';
+  import FileUpload from '../components/FileUpload.svelte';
 
   export let templateId:string;
   let attachmentInput:HTMLInputElement;
@@ -25,7 +26,6 @@
   let filterdArray : any[] =[];
   let focus =true ;
   let validate = false;
-  $:$formData.terms = [...$terms]
   $: filterdArray, ind = 0 ;
   function changeFocus(code:string) {
     if (code==="ArrowDown" && filterdArray.length >0)
@@ -77,18 +77,6 @@
     $formData.terms.splice(index,1)
     $formData.terms = [...$formData.terms]
   }
-  function onSignatureChange() {
-        $formData.signature = input.files ? input.files[0]:null;
-		
-        if ($formData.signature ) {
-            const reader = new FileReader();
-            reader.addEventListener("load", function () {
-                image.setAttribute("src", reader.result as string);
-            });
-            reader.readAsDataURL($formData.signature);
-            return;
-        } 
-    }
     function getExtension(file:File) {
         const parts = file?.name.split('.') ?? [];
         const extension = parts[parts?.length-1]
@@ -144,10 +132,13 @@ async function getItemData(){
 
 let CustomerData :any = [];
 onMount(async()=>{
+    console.log($formData.signature)
     await Promise.all([
         getClientData(),
         getItemData(),
+        getTemplate(templateId),
     ])
+    console.log($formData.signature)
 })
 async function getClientData(){
     try {
@@ -193,7 +184,7 @@ $:{
         )
     }
 }
-
+formData.subscribe((x) => console.log('asdf',x))
 
   $: {
     let val = $formData.items.reduce((x,y) => x+ y.total,0)
@@ -204,55 +195,6 @@ $:{
     let totalExtraChargeAmount = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
     $formData.total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
     }
-    $:{
-        if ($formData.signature) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            image.src = e.target?.result as string ;
-        };
-        reader.readAsDataURL($formData.signature);
-    }
-    }
-    onMount(async ()=>{
-        const {payload:data} = await getData('/templates/getTemplate/'+templateId);
-        $template.name = data.templateName;
-        $template.business = data.businessName;
-        $template.other = data.otherInfo;
-        $setting.discount = data.settings.includeDiscount
-        $setting.GST = data.settings.includeGST;
-        $setting.description = data.settings.includeItemDescription;
-        $setting.additionalNotes = data.settings.includeAdditionalNotes
-        $setting.attachments = data.settings.includeAttachments;
-        $variables = data.customVariables.map(x => {
-            return {
-                name: x.variableName,
-                values: x.variableValues
-            };
-        });
-
-        $itemURL = data.dataMapping.clientInformation.dataUrl;
-
-        $clientDataMapping = data.dataMapping.clientInformation.mappedData.map(x => {
-            return {
-                from: x.urlFieldName,
-                to: x.templateFieldName
-            };
-        });
-
-        $clientURL = data.dataMapping.itemMapping.dataUrl;
-
-        $productDataMapping = data.dataMapping.itemMapping.mappedData.map(x => {
-            return {
-                from: x.urlFieldName,
-                to: x.templateFieldName
-            };
-        });
-
-        $terms = data.dataMapping.terms.map(x => x.value);
-        console.log($terms)
-        console.log('finished');
-    })
 </script>
 <style>
     .my-border-2 {
@@ -360,19 +302,10 @@ $:{
                             </div>
 
                         </div>
-                        {#if $formData.signature !==null}
-                            <div class="flex mt-5">
-                                <img bind:this={image} class="h-28 flex-1 max-w-60" alt="Thumbnail"  />
-                                <button on:click={()=> $formData.signature = null} class="self-start w-10  -mt-3 ">
-                                    <img src={Cross} alt="">
-                                </button>
-                            </div>
-                        {:else}
-                            <input bind:this={input} accept="image/png, image/jpeg" on:change={onSignatureChange} type="file"  id='sig' class="hidden"  />
-                            <label for='sig' class="my-border-2 w-full focus:bg-secondary-bg hover:bg-gray-100 h-20 p-2 text-primary-fg break-words mt-10 justify-center text-center flex"> <span class="self-center font-semibold">Add Signature</label>
-                        {/if}
+                        <FileUpload className="my-5 h-[100px] w-full" bind:file={$formData.signature} text={'Add signature'}  />
                     </div>
                 </div>
+
                 <div class="flex flex-col sm:flex-row mt-10 mx-2">
                     {#if $setting.additionalNotes}
                         <div class="h-60 sm:mr-5 flex-1 p-5 bg-secondary-bg">
@@ -413,23 +346,25 @@ $:{
                         </div>
                     {/if}
                 </div>
-                <div class="w-full mt-16 p-5 bg-secondary-bg">
-                    <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
-                    {#each $formData.terms as item,index}
-                        <div class="flex pb-2 mt-5">
-                            <span class="self-center mr-2">{index+1}.</span>
-                            <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
-                            <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
-                            {#if $formData.terms.length -1 > index }
-                                <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
-                            {/if}
-                            {#if index > 0}
-                                <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
-                            {/if}
-                        </div>
-                    {/each}
-                    <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
-                </div>
+                {#if $setting.additionalNotes}
+                    <div class="w-full mt-16 p-5 bg-secondary-bg">
+                        <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
+                        {#each $formData.terms as item,index}
+                            <div class="flex pb-2 mt-5">
+                                <span class="self-center mr-2">{index+1}.</span>
+                                <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
+                                <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
+                                {#if $formData.terms.length -1 > index }
+                                    <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
+                                {/if}
+                                {#if index > 0}
+                                    <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
+                                {/if}
+                            </div>
+                        {/each}
+                        <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
+                    </div>
+                {/if}
                 <div class="mt-10 flex-col w-full flex">
                     <button on:click={validateForm} class="text-white mt-10 mx-auto bg-[#CC335F] text-lg  p-2 rounded-md "  >
                         SAVE & CONTINUE

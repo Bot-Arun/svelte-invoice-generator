@@ -15,10 +15,10 @@
   import DisabledForm from '../components/DisabledForm.svelte';
   import BackButton from '../components/BackButton.svelte';
   import Header from '../components/Header.svelte';
-  import { postData } from '../api/api';
+  import { getTemplate, postData } from '../api/api';
+  import FileUpload from '../components/FileUpload.svelte';
 
   export let templateId:string;
-  let attachmentInput:HTMLInputElement;
   let total:number  = $formData.total ;
   let showImage =false ;
   let image : HTMLImageElement;
@@ -33,6 +33,17 @@
         return extension;
     }
     async function onSubmit() {
+        let signature = ''
+        console.log($formData.signature)
+        if($formData.signature.file) {
+            const form = new FormData();
+                form.append('file', $formData.signature.file); 
+
+            const value = await postData('/uploads/uploadTemplateSignature/'+templateId,form,{
+            'Content-Type':'multipart/form-data',
+            },);
+            signature =value.payload.location;
+            }
         const data = await postData('/forms/create',{
             "formNo": "Form Number",
             "templateId": templateId,
@@ -65,8 +76,8 @@
                         "value": x.discount,
                         "typeData": x.discountType==='%'?'Percentage':'Rupees'
                     },
-                    "GST": 1,
-                    "total": 1,
+                    "GST": x.gst,
+                    "total": x.total,
                     "thumbnail": "File url",
                     "description": x.description
                 }  
@@ -91,38 +102,95 @@
                 "totalAmount": $formData.total
             },
             "invoiceInfo": {
-                "signature": null,
-                "addtionalInfo": null,
+                "signature": $formData.signature.url,
+                "addtionalInfo": $formData.notes,
                 "additionalAttachments": [
                 null
                 ],
-                "termsConditions": [
-                null
-                ],
+                "termsConditions":$formData.terms,
                 "saveTermsConditions": false
             }
         })
-        console.log(data)
+        console.log({
+            "formNo": "Form Number",
+            "templateId": templateId,
+            "templateName": "Template ID",
+            "orgId": "OrgID",
+            "recordInformation": {
+                "recordName": "Record Name",
+                "recordData": $record.map((x,y) => {
+                    return {
+                        "key": $variables[y].name,
+                        "value": x,
+                        "typeData": "string"
+                    }
+                })
+            },
+            "clientInformation": [
+                {
+                "key": "Key",
+                "value": "Value",
+                "typeData": "string"
+                }
+            ],
+            "itemDetails":$formData.items.map(x=> {
+                return {
+                    "item": x.name,
+                    "type": "type",
+                    "qty": x.quantity,
+                    "price": x.price,
+                    "discount": {
+                        "value": x.discount,
+                        "typeData": x.discountType==='%'?'Percentage':'Rupees'
+                    },
+                    "GST": x.gst,
+                    "total": x.total,
+                    "thumbnail": "File url",
+                    "description": x.description
+                }  
+            }),
+            "price": {
+                "totalDiscount": {
+                "value": 1,
+                "typeData": "string"
+                },
+                "extraCharge": {
+                "value": 1,
+                "typeData": "string"
+                },
+                "additionalCharges": $formData.aditionalCharges.map(x => {
+                    return{
+
+                        "key": x.name,
+                        "value:":x.amount,
+                        "typeData":x.chargeType === '%'?"Percentage":"Rupees"
+                    }
+                }) ,
+                "totalAmount": $formData.total
+            },
+            "invoiceInfo": {
+                "signature": $formData.signature.url,
+                "addtionalInfo": $formData.notes,
+                "additionalAttachments": [
+                null
+                ],
+                "termsConditions":$formData.terms,
+                "saveTermsConditions": false
+            }
+        })
+        if(data.status > 250) {
+            alert(data.message);
+            return;
+        }
         print();
         navigate('/home')
     }
-
-    $:{
-        if ($formData.signature) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            image.src = e.target?.result as string ;
-        };
-
-        reader.readAsDataURL($formData.signature);
-    }
-    }
+    console.log($formData.signature)
   
 </script>
 <div id='mine' class="bg-[#f3f5f7] min-w-[1024px]  w-full ">
     <div class="fixed top-5 right-5 md:left-10 md:top-10">
-    <button class=" print:hidden " on:click={()=> history.back()}><BackButton></BackButton></button> 
+    <button class=" print:hidden " on:click={()=> {console.log($formData.signature); history.back()}}><BackButton></BackButton></button> 
     </div>
     <main  class="text-black flex print:py-0">
         <div id='main'   class="flex flex-col min-w-[1024px] w-[1024px] mx-auto bg-white print:shadow-none shadow-lg">
@@ -167,7 +235,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <DisabledForm data={$formData.items}/>
 
                 <div class="flex " >
@@ -205,9 +272,7 @@
 
                         </div>
                         <div class="flex mt-5 break-inside-avoid">
-                            {#if $formData.signature!== null}
-                                <img bind:this={image} class="h-28 max-w-60" alt="Thumbnail"  />
-                            {/if}
+                            <FileUpload file={$formData.signature} isImage={true} text='temp' />
                         </div>
                     </div>
                 </div>
@@ -248,15 +313,17 @@
                         </div>
                     {/if}
                 </div>
-                <div class="w-full mt-16 p-5 bg-secondary-bg break-inside-avoid">
-                    <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
-                    {#each $formData.terms as item,index}
+                {#if $formData.terms.length}
+                    <div class="w-full mt-16 p-5 bg-secondary-bg break-inside-avoid">
+                        <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
+                        {#each $formData.terms.filter(x => x.length >0) as item,index}
                         <div class="flex pb-2 mt-5 ">
                             <span class="self-center mr-2 ">{index+1}.</span>
                             <input disabled type="text" value={item} class="border-b focus:outline-none w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"/>
                         </div>
-                    {/each}
-                </div>
+                        {/each}
+                    </div>
+                {/if}
                 <div class="flex-col w-full flex">
                     <div class="flex justify-around print:hidden">
                         <button on:click={()=>print()} class="text-white mt-10 w-[200px] bg-[#CC335F] self-center p-2 rounded-md "  >
