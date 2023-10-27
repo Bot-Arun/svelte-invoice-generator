@@ -2,7 +2,6 @@
 
   import { template } from "../store/SettingsStore";
   import FileUpload from "./FileUpload.svelte";
-    console.log($template)
 </script>
 
 

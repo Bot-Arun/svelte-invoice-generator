@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clientDataMapping, clientURL, itemURL, productDataMapping, setting, template, terms, variables } from '../store/SettingsStore';
+import { clientDataMapping, clientURL, itemURL, productDataMapping, record, setting, template, terms, variables } from '../store/SettingsStore';
 import { formData } from '../store/FormStore';
 
 export const baseURL = 'https://niforms.neuui.com/api/v1'
@@ -64,6 +64,21 @@ export const putData = (endpoint:string, data:any,headers?:any) => {
       });
   };
 
+  export const deleteData = (endpoint:string,headers?:any) => {
+    return instance.delete(endpoint,headers)
+      .then(response => {
+          const data = response.data ;
+          data['status'] = response.status ;
+          return data;
+      })
+      .catch(error => {
+        if(error.response) {
+          return {...error.response.data,'status':error.response.status}
+        }
+        throw error;
+      });
+  };
+
 export async function getTemplate(templateId:string) {
     const {payload} = await getData('/templates/getTemplate/'+templateId);
         template.update(x => {
@@ -75,7 +90,6 @@ export async function getTemplate(templateId:string) {
             x.signature = {url:payload.templateSignature,file:null}
             return x ;
         })
-        console.log(template)
         setting.update( x => {
             x.discount = payload.settings.includeDiscount
             x.GST = payload.settings.includeGST;
@@ -116,4 +130,8 @@ template.subscribe((x) => {
     y.signature = x.signature;
     return y;
   })
+})
+
+variables.subscribe(x => {
+    record.set( new Array(x.length).fill(''))
 })

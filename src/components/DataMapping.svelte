@@ -5,7 +5,7 @@ import { onMount } from 'svelte';
 import Down from '../assets/down.svg'
 import Up from '../assets/up.svg'
 import type { ClientData, DataMapping, ProductData } from '../store/SettingsStore';
-let itemList = ['name','price','discount','gst'];
+let itemList = ['name','price','discount','gst','description'];
 let clientList = ['name','business','phno','email','gstno','address']
 let tab:'client'|'item' |'terms' = 'client';
 
@@ -30,7 +30,6 @@ async function getItemData(){
         setError('Enter a valid json url');
         ItemData= []
     }
-    console.log(ItemData)
 }
 
 let CustomerData :any = [];

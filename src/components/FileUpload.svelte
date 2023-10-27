@@ -14,7 +14,6 @@
         }
     }
 
-    $:console.log(file)
 </script>
 
 <div class="{className} flex relative">

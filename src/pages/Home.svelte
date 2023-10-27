@@ -1,8 +1,12 @@
 <script lang="ts">
   import { Link, navigate } from "svelte-routing";
-  import Logo from "../assets/logo.svelte";
-  import { postData } from "../api/api";
+  import Logo from "../assets/logo.svg";
+  import { deleteData, getData, postData } from "../api/api";
   import { onMount } from "svelte";
+  import MoreOption from "../assets/MoreOption.svelte";
+  import FileUpload from "../components/FileUpload.svelte";
+  import { setForm } from "../lib";
+  
   interface Tab {
     name:string;
     id:string;
@@ -11,9 +15,16 @@
     let tab :Tab ;
   let fromDate =''; 
   let toDate = '';
+  let logo = ''
   let templates:any[] =[];
+  let companyName = ''
   let forms:any[] = [];
+  
   onMount(async () => {
+    const {payload} = await getData('/auth/profile') ;
+    companyName = payload.companyName;
+    logo = payload.companyLogo
+
     const value = await postData('/templates/getAllTemplate',{
         "sort": "asc",
         "sortField": "templateName",
@@ -21,7 +32,6 @@
         "pageSize": 10,
         "page": 1
     });
-    console.log(value)
     if(value?.statusCode === 401) {
         navigate('/login')
     }
@@ -33,20 +43,21 @@
         }
     });
     tab = tabs[0]
-    getFormData();
-  })
+     getFormData();
+    })
+    setForm();
   async function getFormData () {
-    const result = await postData('/forms/getAllForms',{
+    const {payload} = await postData('/forms/getAllForms',{
         "sort": "asc",
         "sortField": "templateName",
         "keyword": "",
         "pageSize": 100,
       "page": 1
     })
-    console.log(result.payload.data)
-    forms = result.payload.data ;
+    forms = payload.data ;
   }
-  ;
+  let formId = ''
+  $: console.log(forms.filter((x)=> x.templateId === tab.id));
 </script>
   
   
@@ -56,58 +67,59 @@
             <div class="flex text-left  leading-relaxed justify-between px-10 py-10 text-4xl font-semibold">
                 <div class="pt-5 capitalize">
                     Welcome,<br>
-                    Seventy Two Pharma Omnicare
+                    {companyName}
                 </div>
                 <div>
-                    <Logo/>
+                    <FileUpload className="h-32 w-32 " text="" file={{file:null,url:logo}} isImage={true} ></FileUpload>
                 </div>
                 </div>
                 <div class="p-3 sm:p-4 max-sm:text-xs max-md:text-sm bg-primary-bg rounded-t-lg font-semibold flex">
                     {#each tabs as item}
                         <button on:click={()=>tab=item} class="text-white hover:opacity-100 mr-4 {tab ==item?'':'opacity-50'}"  >{item.name}</button>
                     {/each}
-                    <button class="ml-auto mr-4 text-[#02E100] hover:opacity-70">
-                        <Link to='/createTemplate'> + NEW TEMPLATE </Link>
+                    <button class="ml-auto mr-4 text-[#02E100] opacity-70">
+                        <span> + NEW TEMPLATE </span>
                     </button>
-                    <button class="text-[#02E100] hover:opacity-70">OPTIONS</button>
+                    <button class="text-[#02E100] opacity-70">OPTIONS</button>
                 </div> 
-                <div class="bg-secondary-bg mb-10" >
-                    <div class="flex px-8 py-10" >
-                        <input class="flex-1 border-2 rounded-md bg-inherit p-2 px-4 focus:outline-none" placeholder="Search your form here" type="text">
-                        <button on:click={()=>document?.getElementById('my_modal_2')?.showModal()} class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold p-2" >GENERATE REPORT</button>
-                        <button on:click={()=>navigate(`/${tab.id}/form`) } class="py-2 bg-[#cc335f] px-8 text-white ml-8 rounded-md">CREATE NEW</button>
-                    </div>
+                <div class="bg-secondary-bg w-full flex px-8 py-10" >
+                    <input disabled class="flex-1 border-2 rounded-md bg-inherit p-2 px-4 focus:outline-none" placeholder="Search your form here" type="text">
+                    <button disabled on:click={()=>document?.getElementById('my_modal_2')?.showModal()} class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold p-2" >GENERATE REPORT</button>
+                    <button on:click={()=>navigate(`/${tab.id}/form`) } class="py-2 bg-[#cc335f] px-8 text-white ml-8 rounded-md">CREATE NEW</button>
+                </div>
+                <div class="bg-secondary-bg mb-10 overflow-x-scroll " >
 
-                    <div class="font-bold py-6 flex">
-                        <div class="flex-1">Sr no</div>
-                        <div class="flex-1">Record no</div>
-                        <div class="flex-1">Date</div>
-                        <div class="flex-1">Version</div>
-                        {#each forms as item}
-                             <!-- <div class="flex-1">{item.} </div> -->
-                        {/each}
-                        <div class="flex-1">Type</div>
-                        <div class="flex-1">Created by</div>
-                        <div class="flex-1">Created to</div>
-                        <div class="flex-1">Value</div>
-                        <div class="flex-1"></div>
+                    <div class="flex font-bold w-fit py-6 items-center">
+                        <span class="w-[150px]">Sr no</span>
+                        <span class="w-[150px]">Record no</span>
+                        <span class="w-[150px]">Date</span>
+                        <span class="w-[150px]">Version</span>
+                        {#if forms.length}
+                            {#each forms.filter((x)=> x.templateId === tab.id)[0].recordInformation.recordData as item}
+                                <span class="w-[150px]">{item.key} </span>
+                            {/each}
+                        {/if}
+                        <span class="w-[150px]">Value</span>
+                        <span class="w-[150px]"></span>
                     </div>
-                <div class="min-h-[200px]">
+                    <div class="min-h-[200px]">
 
-                    {#each forms.filter((x)=> x.templateId === tab.id) as item,index}
-                    <Link to='/preview/{item._id}'>
-                    <div class="flex py-4 hover-bg-primary-bg">
-                        <div class="flex-1">{index+1}</div>
-                        <div class="flex-1">{item._id.slice(0,7)}...</div>
-                        <div class="flex-1">{new Date().toLocaleDateString('en-GB').split('/').join('-')}</div>
-                        <div class="flex-1">1.0</div>
-                        <div class="flex-1">Walk in</div>
-                        <div class="flex-1">Sunil Kumar</div>
-                        <div class="flex-1">Raghuram </div>
-                        <div class="flex-1">₹ {item.price.totalAmount}</div>
-                        <div class="flex-1"></div>
-                    </div>
-                    </Link>
+                    {#each forms.filter((x)=> x.templateId === tab.id) as form,index}
+                        <div class="flex py-4 w-fit items-center">
+                            <span class="w-[150px]">{index+1}</span>
+                            <span class="w-[150px]">{form.formNo.split('||')[1]}</span>
+                            <span class="w-[150px]">{new Date().toLocaleDateString('en-GB').split('/').join('-')}</span>
+                            <span class="w-[150px]">1.0</span>
+                            {#each form.recordInformation.recordData as item}
+                                <span class="w-[150px]">{item.value}</span>
+                            {/each}
+
+                            <span class="w-[150px]">₹ {form.price.totalAmount}</span>
+                            <span class="w-[150px]">
+                                <Link to="/preview/{form._id}"><button on:click={()=>navigate(``) } class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold px-2 p-1">View</button></Link>
+                            </span>
+                            <button class=" mx-2 py-1 bg-[#cc335f] px-2 text-white rounded-md" on:click={()=>{formId = form._id ;document?.getElementById('delete_form')?.showModal()}} >Delete</button>
+                        </div>  
                     {:else}
                          <div class=" text-3xl font-semibold text-secondary-fg py-14">No Items Found</div>
                     {/each}
@@ -145,6 +157,28 @@
             <option value="saf">value1</option>
         </select>
         <button class="flex mx-auto px-6 py-3 rounded-lg bg-[#cc335f] text-white font-semibold my-10">GENERATE & DOWNLOAD</button>
+        </div>
+    </dialog>
+    <dialog id='delete_form' class="modal">
+        <div class=" modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" on:click={()=>'toggleModal'}>✕</button>
+            </form>
+        
+            <h3 class="font-bold text-lg">Alert</h3>
+            <div class="p-4">
+                <div class="py-2">
+                    Are you sure to delte this form ?
+                </div>
+            </div>
+            <div class="flex">
+                <form method="dialog" >
+                    <button class="ml-auto btn btn-error px-5" on:click={()=>{ deleteData('/forms/delete/'+formId);
+                    forms = forms.filter(x => formId!==x.id)
+                }} >Yes</button>
+                    <button class="btn ml-10 btn-neutral px-5">No</button>
+                </form>
+            </div>
         </div>
     </dialog>
   </div>

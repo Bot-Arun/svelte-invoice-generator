@@ -1,18 +1,28 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
   import {postData} from '../api/api'
+  import { setting } from "../store/SettingsStore";
+  import { fade, fly } from "svelte/transition";
 
   let email = '';
   let password = '';
 
   const login = async () => {
-    const value = await postData('/auth/login',{
-        email,password
-    });
-    localStorage.setItem('token',value.payload.token);
-    console.log(localStorage.getItem('token'))
-    navigate('/home')
-  }
+        const {payload,status,message} = await postData('/auth/login',{
+            email,password
+        });
+        if(status > 250)
+        setError(message)
+        localStorage.setItem('token',payload.token)
+        $setting.org =payload.userData._id;
+        navigate('/home')
+
+}
+let error = '';
+  const setError = (msg: string) => {
+      error = msg;
+    setTimeout(() => (error = ""), 3000);
+  };
 
 </script>
 
@@ -37,4 +47,25 @@
             </div>
         </div>
     </main>
+    {#if error.length}
+      <div class="fixed bottom-5 min-w-max w-full flex justify-center">
+        <div in:fly out:fade class="alert alert-error w-[50%] fixed bottom-5">
+          <button on:click={() => (error = "")}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              /></svg
+            >
+          </button>
+          <span>{error}</span>
+        </div>
+      </div>
+    {/if}
 </div>

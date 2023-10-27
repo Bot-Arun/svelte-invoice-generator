@@ -10,31 +10,17 @@
   import DOC from '../assets/document.svg'
   import  {Link, navigate} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
-  import { clientData, setting ,client, variables, terms, record } from '../store/SettingsStore';
+  import { clientData, setting ,clientInfo, variables, terms, record, client } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import DisabledForm from '../components/DisabledForm.svelte';
   import BackButton from '../components/BackButton.svelte';
   import Header from '../components/Header.svelte';
   import { getTemplate, postData } from '../api/api';
   import FileUpload from '../components/FileUpload.svelte';
+  import { getExtension } from '../lib';
 
   export let templateId:string;
-  let total:number  = $formData.total ;
-  let showImage =false ;
-  let image : HTMLImageElement;
-  let input:HTMLInputElement;
-  let ind = 0;
-  let next: HTMLInputElement ;
-
-
-    function getExtension(file:File) {
-        const parts = file?.name.split('.') ?? [];
-        const extension = parts[parts?.length-1]
-        return extension;
-    }
     async function onSubmit() {
-        let signature = ''
-        console.log($formData.signature)
         if($formData.signature.file) {
             const form = new FormData();
                 form.append('file', $formData.signature.file); 
@@ -42,13 +28,13 @@
             const value = await postData('/uploads/uploadTemplateSignature/'+templateId,form,{
             'Content-Type':'multipart/form-data',
             },);
-            signature =value.payload.location;
+            $formData.signature.url =value.payload.location;
             }
         const data = await postData('/forms/create',{
             "formNo": "Form Number",
             "templateId": templateId,
             "templateName": "Template ID",
-            "orgId": "OrgID",
+            "orgId": $setting.org,
             "recordInformation": {
                 "recordName": "Record Name",
                 "recordData": $record.map((x,y) => {
@@ -83,86 +69,18 @@
                 }  
             }),
             "price": {
-                "totalDiscount": {
-                "value": 1,
-                "typeData": "string"
-                },
-                "extraCharge": {
-                "value": 1,
-                "typeData": "string"
-                },
-                "additionalCharges": $formData.aditionalCharges.map(x => {
+                "additionalDiscountCharges": $formData.deductions.map(x => {
                     return{
-
                         "key": x.name,
-                        "value:":x.amount,
+                        "value":x.amount,
                         "typeData":x.chargeType === '%'?"Percentage":"Rupees"
                     }
                 }) ,
-                "totalAmount": $formData.total
-            },
-            "invoiceInfo": {
-                "signature": $formData.signature.url,
-                "addtionalInfo": $formData.notes,
-                "additionalAttachments": [
-                null
-                ],
-                "termsConditions":$formData.terms,
-                "saveTermsConditions": false
-            }
-        })
-        console.log({
-            "formNo": "Form Number",
-            "templateId": templateId,
-            "templateName": "Template ID",
-            "orgId": "OrgID",
-            "recordInformation": {
-                "recordName": "Record Name",
-                "recordData": $record.map((x,y) => {
-                    return {
-                        "key": $variables[y].name,
-                        "value": x,
-                        "typeData": "string"
-                    }
-                })
-            },
-            "clientInformation": [
-                {
-                "key": "Key",
-                "value": "Value",
-                "typeData": "string"
-                }
-            ],
-            "itemDetails":$formData.items.map(x=> {
-                return {
-                    "item": x.name,
-                    "type": "type",
-                    "qty": x.quantity,
-                    "price": x.price,
-                    "discount": {
-                        "value": x.discount,
-                        "typeData": x.discountType==='%'?'Percentage':'Rupees'
-                    },
-                    "GST": x.gst,
-                    "total": x.total,
-                    "thumbnail": "File url",
-                    "description": x.description
-                }  
-            }),
-            "price": {
-                "totalDiscount": {
-                "value": 1,
-                "typeData": "string"
-                },
-                "extraCharge": {
-                "value": 1,
-                "typeData": "string"
-                },
                 "additionalCharges": $formData.aditionalCharges.map(x => {
                     return{
 
                         "key": x.name,
-                        "value:":x.amount,
+                        "value":x.amount,
                         "typeData":x.chargeType === '%'?"Percentage":"Rupees"
                     }
                 }) ,
@@ -185,12 +103,11 @@
         print();
         navigate('/home')
     }
-    console.log($formData.signature)
   
 </script>
 <div id='mine' class="bg-[#f3f5f7] min-w-[1024px]  w-full ">
     <div class="fixed top-5 right-5 md:left-10 md:top-10">
-    <button class=" print:hidden " on:click={()=> {console.log($formData.signature); history.back()}}><BackButton></BackButton></button> 
+    <button class=" print:hidden " on:click={()=> {history.back()}}><BackButton></BackButton></button> 
     </div>
     <main  class="text-black flex print:py-0">
         <div id='main'   class="flex flex-col min-w-[1024px] w-[1024px] mx-auto bg-white print:shadow-none shadow-lg">
@@ -211,26 +128,13 @@
                         <div class="flex-1 py-4 px-3 mx-2 rounded-xl"> 
                             <div class="text-lg text-secondary-fg  py-2 font-semibold">CLIENT INFORMATION</div>
                             <div class="p-4 relative z-50 pb-10">
-                                {#if $client.name}
-                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" value={$client.name}   type="text">
-                                {/if}
-                                {#if $client.business}
-                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.business} placeholder="Business name" type="text">
-                                {/if}
-                                {#if $client.email}
-                                    <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.email} placeholder="Email id" type="email">
-                                {/if}
-                                <div class="flex">
-                                    {#if $client.phno}
-                                        <input disabled class="border-b rounded-none focus:outline-none mt-5 pb-2 w-full border-gray-400 bg-inherit placeholder-[#B7C2D3] " value={$client.phno} placeholder="Phone no" type="text">
-                                    {/if}
-                                    {#if $client.gstno}
-                                        <input disabled class="border-b border-gray-400 rounded-none ml-4 focus:outline-none mt-5  pb-2 w-full focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " value={$client.gstno} placeholder="GST no" type="text">
-                                    {/if}
+                                <div class="p-4 pb-10">
+                                    {#each $client.filter(x => x) as item}
+                                        <div class="border-b border-gray-400 mt-5 pb-2 w-full text-lg ">
+                                            {item}
+                                        </div>
+                                    {/each} 
                                 </div>
-                                {#if $client.address}
-                                    <input bind:this={next} class="border-b border-gray-400 rounded-none focus:outline-none mt-5 pb-2 w-full focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "value={$client.address} placeholder="Address" type="text">
-                                {/if}
                             </div>
                         </div>
                     </div>
@@ -267,7 +171,7 @@
                             <div class=" bg-green-500 w-[350px]"></div>
                             <div class="flex font-semibold text-2xl mt-10 py-4 border-y border-[#B7C2D3FF] ">
                                <span>Total (INR)</span>
-                               <span class="ml-auto"> ₹ {total}</span> 
+                               <span class="ml-auto"> ₹ {$formData.total}</span> 
                             </div>
 
                         </div>

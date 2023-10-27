@@ -7,6 +7,7 @@ export interface Setting {
     showDesc: boolean,
     showDiscount:boolean,
     showGST:boolean,
+    org:string,
 }
 
 function getFromLocalStorage<T>(key: string, defaultValue: T): T {
@@ -24,6 +25,7 @@ export const setting = writable(getFromLocalStorage('setting', {
   additionalNotes: false,
   attachments: false,
   GST: true,
+  org:''
 }));
 
 setting.subscribe(($setting) => {
@@ -57,7 +59,7 @@ export interface ClientType {
   address:string,
 }
 
-export const client : Writable<ClientType>  = writable({
+export const clientInfo : Writable<ClientType>  = writable({
   name:'',
   business:'',
   email:'',
@@ -107,6 +109,8 @@ export const themeColors:Writable<Colors> = writable({
 
 export const record:Writable<string[]> = writable(['',''])
 
+export const client:Writable<string[]> = writable(['',''])
+
 
 export interface Template {
   name:string;
@@ -126,6 +130,7 @@ export const template:Writable<Template> = writable({
   logo:{file:null,url:''},
   terms:[],
 })
+
 
 
 

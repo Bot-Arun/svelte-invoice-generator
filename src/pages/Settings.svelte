@@ -33,7 +33,7 @@
   let formTemplate = { ...$template };
   async function saveChanges() {
     let signatureUrl = '';
-    let logo
+    let logo = ''
     if(formTemplate.signature.file) {
       const form = new FormData();
       form.append('file', formTemplate.signature.file); 
@@ -76,7 +76,7 @@
               "variableValues": x.values,
           }
       }),
-      "orgId": "6532d0038159b139e9e4bbd0",
+      "orgId": $setting.org,
       "dataMapping":{
           "clientInformation": {
               "dataUrl": itemUrl,
@@ -110,7 +110,6 @@
           })
       }
     })
-    console.log(result);
     $template = formTemplate;
     $formData.terms = formTemplate.terms
     $formData.signature = formTemplate.signature  
@@ -139,7 +138,6 @@
   };
   $: $record = $variables.map((x) => "");
   
- $: console.log(formTemplate.logo)
   
   function addNewVariable() {
     customVariable = [...customVariable, { name: "", values: [""] }];

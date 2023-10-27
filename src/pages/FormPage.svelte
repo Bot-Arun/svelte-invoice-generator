@@ -9,13 +9,14 @@
   import DOC from '../assets/document.svg'
   import  {Link, navigate, useHistory} from 'svelte-routing'
   import { formData , type charge } from "../store/FormStore";
-  import { clientData, setting ,client, variables, terms, record, template, productData, itemURL, clientDataMapping, clientURL, productDataMapping } from '../store/SettingsStore';
+  import { clientData, setting ,clientInfo, variables, terms, record, template, productData, itemURL, clientDataMapping, clientURL, productDataMapping, client } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import SettingButton from '../components/SettingButton.svelte';
   import Header from '../components/Header.svelte';
   import BackButton from '../components/BackButton.svelte';
   import { getData, getTemplate } from '../api/api';
   import FileUpload from '../components/FileUpload.svelte';
+  import { getExtension } from '../lib';
 
   export let templateId:string;
   let attachmentInput:HTMLInputElement;
@@ -24,7 +25,7 @@
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
-  let focus =true ;
+  let focus =false ;
   let validate = false;
   $: filterdArray, ind = 0 ;
   function changeFocus(code:string) {
@@ -33,17 +34,17 @@
     else if (code==="ArrowUp")
     ind = Math.max(0,ind-1);
     else if (code==="Enter") {
-      $client.name = filterdArray[ ind].name ?? '';
-      $client.email = filterdArray[ind].email ?? ''
-      $client.business = filterdArray[ind].business ?? ''
-      $client.phno = filterdArray[ind].phno ?? ''
-      $client.gstno = filterdArray[ind].gstno ?? ''
-      $client.address = filterdArray[ind].address ?? ''
+      $clientInfo.name = filterdArray[ ind].name ?? '';
+      $clientInfo.email = filterdArray[ind].email ?? ''
+      $clientInfo.business = filterdArray[ind].business ?? ''
+      $clientInfo.phno = filterdArray[ind].phno ?? ''
+      $clientInfo.gstno = filterdArray[ind].gstno ?? ''
+      $clientInfo.address = filterdArray[ind].address ?? ''
       next.focus();
     }
   }
   $: {
-    filterdArray = $clientData.filter( x => x.name && x.name.toLocaleLowerCase().startsWith($client.name.toLocaleLowerCase())&& x.name.toLocaleLowerCase() && $client.name!=='') ;
+    filterdArray = $clientData.filter( x => x.name && x.name.toLocaleLowerCase().startsWith($clientInfo.name.toLocaleLowerCase())&& x.name.toLocaleLowerCase() && $clientInfo.name!=='') ;
     }
   $: {
     if($formData.items.length) {
@@ -77,11 +78,7 @@
     $formData.terms.splice(index,1)
     $formData.terms = [...$formData.terms]
   }
-    function getExtension(file:File) {
-        const parts = file?.name.split('.') ?? [];
-        const extension = parts[parts?.length-1]
-        return extension;
-    }
+    
     function addAttachment() {
         const file = attachmentInput.files?.[0];
         if (file === undefined)
@@ -127,18 +124,15 @@ async function getItemData(){
     catch (error) {
         ItemData= []
     }
-    console.log(ItemData)
 }
 
 let CustomerData :any = [];
 onMount(async()=>{
-    console.log($formData.signature)
     await Promise.all([
         getClientData(),
         getItemData(),
         getTemplate(templateId),
     ])
-    console.log($formData.signature)
 })
 async function getClientData(){
     try {
@@ -184,7 +178,6 @@ $:{
         )
     }
 }
-formData.subscribe((x) => console.log('asdf',x))
 
   $: {
     let val = $formData.items.reduce((x,y) => x+ y.total,0)
@@ -195,6 +188,7 @@ formData.subscribe((x) => console.log('asdf',x))
     let totalExtraChargeAmount = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
     $formData.total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
     }
+    $: $client = [$clientInfo.name, $clientInfo.business, $clientInfo.email, $clientInfo.phno, $clientInfo.gstno, $clientInfo.address,]
 </script>
 <style>
     .my-border-2 {
@@ -239,7 +233,7 @@ formData.subscribe((x) => console.log('asdf',x))
                         <div class="flex-1 py-4 px-3 mx-2 rounded-xl"> 
                             <div class="text-lg text-secondary-fg  py-2 font-semibold">CLIENT INFORMATION</div>
                             <div class="m-4 relative pb-10">
-                                <input class=" rounded-none focus:outline-none mt-5 border-b w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" bind:value={$client.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.key)}  type="text">
+                                <input class=" rounded-none focus:outline-none mt-5 border-b w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " placeholder="Client name" bind:value={$clientInfo.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.key)}  type="text">
                                 {#if focus && filterdArray.length }
                                     <div class="absolute border z-50 flex flex-col mt-1 border-gray-400 bg-white w-full">
                                         {#each filterdArray.slice(0,5) as item,index}
@@ -247,13 +241,13 @@ formData.subscribe((x) => console.log('asdf',x))
                                         {/each}
                                     </div>
                                 {/if}
-                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.business} placeholder="Business name" type="text">
-                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.email} placeholder="Email id" type="email">
+                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$clientInfo.business} placeholder="Business name" type="text">
+                                <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$clientInfo.email} placeholder="Email id" type="email">
                                 <div class="flex">
-                                    <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.phno} placeholder="Phone no" type="text">
-                                    <input class="rounded-none ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.gstno} placeholder="GST no" type="text">
+                                    <input class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$clientInfo.phno} placeholder="Phone no" type="text">
+                                    <input class="rounded-none ml-4 focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$clientInfo.gstno} placeholder="GST no" type="text">
                                 </div>
-                                <input bind:this={next} class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$client.address} placeholder="Address" type="text">
+                                <input bind:this={next} class="rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] " bind:value={$clientInfo.address} placeholder="Address" type="text">
                             </div>
                         </div>
                     </div>
@@ -346,25 +340,23 @@ formData.subscribe((x) => console.log('asdf',x))
                         </div>
                     {/if}
                 </div>
-                {#if $setting.additionalNotes}
-                    <div class="w-full mt-16 p-5 bg-secondary-bg">
-                        <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
-                        {#each $formData.terms as item,index}
-                            <div class="flex pb-2 mt-5">
-                                <span class="self-center mr-2">{index+1}.</span>
-                                <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
-                                <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
-                                {#if $formData.terms.length -1 > index }
-                                    <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
-                                {/if}
-                                {#if index > 0}
-                                    <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
-                                {/if}
-                            </div>
-                        {/each}
-                        <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
-                    </div>
-                {/if}
+                <div class="w-full mt-16 p-5 bg-secondary-bg">
+                    <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
+                    {#each $formData.terms as item,index}
+                        <div class="flex pb-2 mt-5">
+                            <span class="self-center mr-2">{index+1}.</span>
+                            <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
+                            <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
+                            {#if $formData.terms.length -1 > index }
+                                <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
+                            {/if}
+                            {#if index > 0}
+                                <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
+                            {/if}
+                        </div>
+                    {/each}
+                    <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
+                </div>
                 <div class="mt-10 flex-col w-full flex">
                     <button on:click={validateForm} class="text-white mt-10 mx-auto bg-[#CC335F] text-lg  p-2 rounded-md "  >
                         SAVE & CONTINUE

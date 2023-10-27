@@ -68,7 +68,7 @@
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
-  let focus =true ;
+  let focus =false ;
   $: filterdArray, ind = 0 ;
   function computeDiscount(value:number) {
         if($setting.discount===false)
@@ -96,6 +96,7 @@
       item.discount = filterdArray[ ind].discount ?? 0;
       item.gst = filterdArray[ ind].gst ?? 0;
       item.price = filterdArray[ind].price ?? 0 ;   
+      item.description = filterdArray[ind].description ??'';
       next.focus();
     }
 }
@@ -120,7 +121,7 @@ let innerWidth:number;
                         <img src={Cross} alt="">
                     </button>
                     <div class="self-center md:hidden max-sm:w-32 max-md:w-60 text-lg">Item</div>
-                    <input class="rounded-none pl-2 focus:outline-none border-b {validate&& item.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> focus = false,500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
+                    <input class="rounded-none pl-2 focus:outline-none border-b {validate&& item.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit py-2 pr-2 w-full" bind:value={item.name} on:focusin={()=> focus = true} on:focusout={ ()=> setTimeout(()=> { focus = false},500) }  on:keydown={(e)=>changeFocus(e.code)}  type="text">
                 </div>
                 {#if focus && filterdArray.length }
                     <div class="absolute flex flex-col border mt-1 border-gray-400 bg-white w-full">

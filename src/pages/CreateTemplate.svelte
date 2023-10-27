@@ -18,30 +18,13 @@
     terms,
   } from "../store/SettingsStore";
 import { formData } from "../store/FormStore";
-import { postData } from "../api/api";
+import { postData, putData } from "../api/api";
 import { navigate } from "svelte-routing";
   import FileUpload from "../components/FileUpload.svelte";
   let ind = 0;
   async function createTemplate() {
-    let signatureUrl = '';
-    let logo = '';
-    // if($template.signature.file) {
-    //   const value = await postData('/uploads/uploadTemplateSignature/'+templateId,{
-    //     file:$template.signature.file
-    //   },{
-    //   'Content-Type':'multipart/form-data',
-    // },);
-    //   signatureUrl =value.payload.location;
-    // }
-    // if($template.logo.file) {
-    //   const value = await postData('/uploads/uploadTemplateLogo/'+templateId,{
-    //     file:$template.logo.file
-    //   },{
-    //   'Content-Type':'multipart/form-data',
-    // },);
-    //   logo =value.payload.location;
-    // }
-    const result = await postData('/templates/create',{
+    
+    var result = await postData('/templates/create',{
       "templateName": $template.name,
       "businessName": $template.business,
       "otherInfo": $template.other,
@@ -61,7 +44,7 @@ import { navigate } from "svelte-routing";
               "variableValues": x.values,
           }
       }),
-      "orgId": "OrgID",
+      "orgId": $setting.org,
       "dataMapping":{
           "clientInformation": {
               "dataUrl": $itemURL,
@@ -95,6 +78,87 @@ import { navigate } from "svelte-routing";
           })
       }
   })
+  let templateId = result.payload._id;
+  let signatureUrl = '';
+  let logo = '';
+  if($template.signature.file) {
+    const form = new FormData();
+      form.append('file',$template.signature.file);
+    const value = await postData('/uploads/uploadTemplateSignature/'+templateId,form,{
+    'Content-Type':'multipart/form-data',
+  },);
+    signatureUrl =value.payload.location;
+  }
+  else {
+    signatureUrl = $template.signature.url;
+  }
+  if($template.logo.file) {
+
+    const form = new FormData();
+      form.append('file',$template.logo.file);
+    const value = await postData('/uploads/uploadTemplateLogo/'+templateId,form,{
+    'Content-Type':'multipart/form-data',
+  },);
+    logo =value.payload.location;
+  }
+  else {
+    logo = $template.logo.url;
+  }
+  var result = await putData('/templates/update/'+templateId,{
+      "templateName": $template.name,
+      "businessName": $template.business,
+      "otherInfo": $template.other,
+      "templateLogo":logo,
+      "templateSignature":signatureUrl,
+      "settings": {
+          "themeName": "string",
+          "includeDiscount": $setting.discount,
+          "includeGST": $setting.GST,
+          "includeItemDescription": $setting.description,
+          "includeAdditionalNotes": $setting.additionalNotes,
+          "includeAttachments": $setting.attachments
+      },
+      "customVariables":$variables.map(x =>{
+          return {
+              "variableName": x.name,
+              "variableValues": x.values,
+          }
+      }),
+      "orgId": $setting.org,
+      "dataMapping":{
+          "clientInformation": {
+              "dataUrl": $itemURL,
+              "isAuthRequired": false,
+              "authDetails": false,
+              "mappedData": $clientDataMapping.map(x => {
+                  return {
+                      "urlFieldName": x.from,
+                      "templateFieldName": x.to,
+                      "type": "string"
+                  }
+              })
+          },
+          "itemMapping": {
+              "dataUrl": $clientURL,
+              "isAuthRequired": false,
+              "authDetails": {},
+              "mappedData": $productDataMapping.map(x => {
+                  return {
+                      "urlFieldName": x.from,
+                      "templateFieldName": x.to,
+                      "type": "string"
+                  }
+              })
+          },
+          "terms": $template.terms.map((x,y) => {
+              return {
+                  value:x,
+                  order:y,
+              }
+          })
+      }
+  })
+  if(result.status < 250)
       navigate('/home');
   }
   let tempVariableName = "";
