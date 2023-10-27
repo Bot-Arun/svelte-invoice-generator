@@ -35,14 +35,19 @@
   
 <style>
   @media print {
-      @page {
-          margin: 0;
-          transform-origin: top left;
-        
-      }
-      .mine {
-        zoom:0.78;
-      }
+    * { 
+      -webkit-print-color-adjust: exact !important;   
+      color-adjust: exact !important;              
+      print-color-adjust: exact !important; 
+    }
+    @page {
+        margin: 0mm;
+        transform-origin: top left;
+        footnote-display: none;
+    }
+    .mine {
+      zoom:0.78;
+    }
 
   }
   :global(.text-primary-fg) {
