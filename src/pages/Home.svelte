@@ -57,7 +57,6 @@
     forms = payload.data ;
   }
   let formId = ''
-  $: console.log(forms.filter((x)=> x.templateId === tab.id));
 </script>
   
   
@@ -85,8 +84,12 @@
                 <div class="bg-secondary-bg w-full flex px-8 py-10" >
                     <input disabled class="flex-1 border-2 rounded-md bg-inherit p-2 px-4 focus:outline-none" placeholder="Search your form here" type="text">
                     <button disabled on:click={()=>document?.getElementById('my_modal_2')?.showModal()} class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold p-2" >GENERATE REPORT</button>
-                    <button on:click={()=>navigate(`/${tab.id}/form`) } class="py-2 bg-[#cc335f] px-8 text-white ml-8 rounded-md">CREATE NEW</button>
-                </div>
+                    {#if tab}
+                    <a href="/{tab.id}/form" target="_blank">
+                        <button  class="py-2 bg-[#cc335f] px-8 text-white ml-8 rounded-md">CREATE NEW</button>
+                    </a>
+                    {/if}
+                    </div>
                 <div class="bg-secondary-bg mb-10 overflow-x-scroll " >
 
                     <div class="flex font-bold w-fit py-6 items-center">
@@ -116,7 +119,7 @@
 
                             <span class="w-[150px]">₹ {form.price.totalAmount}</span>
                             <span class="w-[150px]">
-                                <Link to="/preview/{form._id}"><button on:click={()=>navigate(``) } class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold px-2 p-1">View</button></Link>
+                                <a href="/preview/{form._id}" target='_blank'><button class="rounded-md border-[#cc335f] border-2 ml-8 text-[#cc335f] font-semibold px-2 p-1">View</button></a>
                             </span>
                             <button class=" mx-2 py-1 bg-[#cc335f] px-2 text-white rounded-md" on:click={()=>{formId = form._id ;document?.getElementById('delete_form')?.showModal()}} >Delete</button>
                         </div>  
@@ -173,8 +176,9 @@
             </div>
             <div class="flex">
                 <form method="dialog" >
-                    <button class="ml-auto btn btn-error px-5" on:click={()=>{ deleteData('/forms/delete/'+formId);
-                    forms = forms.filter(x => formId!==x.id)
+                    <button class="ml-auto btn btn-error px-5" on:click={()=>{ 
+                        deleteData('/forms/delete/'+formId);
+                        forms = forms.filter(x => formId!==x._id);
                 }} >Yes</button>
                     <button class="btn ml-10 btn-neutral px-5">No</button>
                 </form>

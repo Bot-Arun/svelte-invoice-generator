@@ -198,7 +198,7 @@
                       {#if $setting.additionalNotes && $formData.notes}
                           <div class="h-60 mr-5 flex-1 p-5 bg-secondary-bg">
                               <div class="text-lg text-secondary-fg  py-2 font-semibold">ADDITIONAL NOTES</div>
-                              <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
+                              <textarea value={$formData.notes} class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                           </div>
                       {/if}
                       {#if $setting.attachments && $formData.attachments.length}

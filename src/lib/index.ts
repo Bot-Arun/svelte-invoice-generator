@@ -30,7 +30,6 @@ export function setForm(){
         attachments:[],
         terms:[]
       });
-      console.log('updated')
       record.set([])
       client.set([])
 }

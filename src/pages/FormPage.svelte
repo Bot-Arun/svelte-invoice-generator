@@ -8,7 +8,7 @@
   import XLS from '../assets/xls.svg'
   import DOC from '../assets/document.svg'
   import  {Link, navigate, useHistory} from 'svelte-routing'
-  import { formData , type charge } from "../store/FormStore";
+  import { formData , type charge, refresh } from "../store/FormStore";
   import { clientData, setting ,clientInfo, variables, terms, record, template, productData, itemURL, clientDataMapping, clientURL, productDataMapping, client } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import SettingButton from '../components/SettingButton.svelte';
@@ -52,10 +52,10 @@
     }
   }
   function addDiscount(){
-    $formData.deductions = [...$formData.deductions,{name:'Discount',chargeType:'%',amount:0}]
+    $formData.deductions = [...$formData.deductions,{name:'',chargeType:'%',amount:0}]
   }
   function addAdditionalCharges(){
-    $formData.aditionalCharges = [...$formData.aditionalCharges,{name:'Additional Charge',chargeType:'%',amount:0}]
+    $formData.aditionalCharges = [...$formData.aditionalCharges,{name:'',chargeType:'%',amount:0}]
   }
   function removeDiscount(index:number) {
     $formData.deductions.splice(index,1);
@@ -125,14 +125,18 @@ async function getItemData(){
         ItemData= []
     }
 }
-
 let CustomerData :any = [];
 onMount(async()=>{
-    await Promise.all([
-        getClientData(),
-        getItemData(),
-        getTemplate(templateId),
-    ])
+    if($refresh) {
+        await getTemplate(templateId),
+        await Promise.all([
+            getClientData(),
+            getItemData(),
+        ])
+    }
+    else {
+        $refresh = true;
+    }
 })
 async function getClientData(){
     try {
@@ -214,7 +218,7 @@ $:{
                             {#each $variables as variable,index}
                                 {#if variable.values.length}
                                     <select bind:value={$record[index]} class="focus:outline-none mt-5 border-b pb-2 w-full text-lg {validate&& $record[index].length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3] ">
-                                    <option value="" disabled selected={$record[index]===''} >{variable.name}</option>
+                                    <option value="" disabled selected={true}  >{variable.name}</option>
                                     {#each variable.values as value}
                                         <option>{value}</option>
                                     {/each}
@@ -260,7 +264,7 @@ $:{
                         <div class="">
                             {#each $formData.deductions as discount,index}
                             <div class="flex mt-7">
-                                    <input bind:value={discount.name} class="bg-inherit rounded-none {validate&& discount.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10" />
+                                    <input bind:value={discount.name} placeholder="Discount Name" class="bg-inherit rounded-none {validate&& discount.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10" />
                                     <input bind:value={discount.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
                                     <select bind:value={discount.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
@@ -273,7 +277,7 @@ $:{
                                 {#each $formData.aditionalCharges as extraCharge,index}
                                 <div class="flex  mt-7">
 
-                                    <input bind:value={extraCharge.name} class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"/>
+                                    <input bind:value={extraCharge.name} placeholder="Additional Charges Name" class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"/>
                                     <input bind:value={extraCharge.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
                                     <select bind:value={extraCharge.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>

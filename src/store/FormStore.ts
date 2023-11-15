@@ -32,6 +32,7 @@ export interface FormDataType {
   signature:UploadFile,
 }
 
+export const refresh:Writable<boolean> = writable(true);
 
 export const formData:Writable<FormDataType> = writable({
   items: [

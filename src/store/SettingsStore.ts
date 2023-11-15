@@ -18,7 +18,7 @@ function updateLocalStorage<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-export const setting = writable(getFromLocalStorage('setting', {
+export const setting = writable( {
   thumbnail: false,
   description: true,
   discount: true,
@@ -26,11 +26,11 @@ export const setting = writable(getFromLocalStorage('setting', {
   attachments: false,
   GST: true,
   org:''
-}));
-
-setting.subscribe(($setting) => {
-  updateLocalStorage('setting', $setting);
 });
+
+// setting.subscribe(($setting) => {
+//   updateLocalStorage('setting', $setting);
+// });
 
 export interface ProductData {
   name?:string,
@@ -107,7 +107,7 @@ export const themeColors:Writable<Colors> = writable({
   secondaryBg: '#f3fcf3',
 })
 
-export const record:Writable<string[]> = writable(['',''])
+export const record:Writable<string[]> = writable([])
 
 export const client:Writable<string[]> = writable(['',''])
 

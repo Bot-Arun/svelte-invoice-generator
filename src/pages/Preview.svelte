@@ -9,7 +9,7 @@
   import XLS from '../assets/xls.svg'
   import DOC from '../assets/document.svg'
   import  {Link, navigate} from 'svelte-routing'
-  import { formData , type charge } from "../store/FormStore";
+  import { formData , type charge, refresh } from "../store/FormStore";
   import { clientData, setting ,clientInfo, variables, terms, record, client } from '../store/SettingsStore';
   import { onMount } from 'svelte';
   import DisabledForm from '../components/DisabledForm.svelte';
@@ -20,6 +20,7 @@
   import { getExtension } from '../lib';
 
   export let templateId:string;
+  $refresh = false ;
     async function onSubmit() {
         if($formData.signature.file) {
             const form = new FormData();
@@ -107,7 +108,9 @@
 </script>
 <div id='mine' class="bg-[#f3f5f7] min-w-[1024px]  w-full ">
     <div class="fixed top-5 right-5 md:left-10 md:top-10">
-    <button class=" print:hidden " on:click={()=> {history.back()}}><BackButton></BackButton></button> 
+    <Link to='/{templateId}/form' state={{from:'/preview'}} >
+        <button class=" print:hidden "><BackButton></BackButton></button> 
+    </Link>
     </div>
     <main  class="text-black flex print:py-0">
         <div id='main'   class="flex flex-col min-w-[1024px] w-[1024px] mx-auto bg-white print:shadow-none shadow-lg">
@@ -176,7 +179,9 @@
 
                         </div>
                         <div class="flex mt-5 break-inside-avoid">
-                            <FileUpload file={$formData.signature} isImage={true} text='temp' />
+                            {#if $formData.signature.file !== null && $formData.signature.url !== ''}
+                                <FileUpload file={$formData.signature} isImage={true} text='temp' />
+                            {/if}
                         </div>
                     </div>
                 </div>
@@ -184,7 +189,7 @@
                     {#if $setting.additionalNotes && $formData.notes}
                         <div class="h-60 mr-5 flex-1 p-5 bg-secondary-bg">
                             <div class="text-lg text-secondary-fg  py-2 font-semibold">ADDITIONAL NOTES</div>
-                            <textarea class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
+                            <textarea value={$formData.notes} class="bg-inherit focus:outline-none w-full" rows="5"></textarea>
                         </div>
                     {/if}
                     {#if $setting.attachments && $formData.attachments.length}

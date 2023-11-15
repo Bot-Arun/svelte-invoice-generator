@@ -132,6 +132,3 @@ template.subscribe((x) => {
   })
 })
 
-variables.subscribe(x => {
-    record.set( new Array(x.length).fill(''))
-})
