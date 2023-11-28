@@ -14,19 +14,20 @@
   import SettingButton from '../components/SettingButton.svelte';
   import Header from '../components/Header.svelte';
   import BackButton from '../components/BackButton.svelte';
-  import { getData, getTemplate } from '../api/api';
+  import { getData, getTemplate, postData } from '../api/api';
   import FileUpload from '../components/FileUpload.svelte';
   import { getExtension } from '../lib';
 
   export let templateId:string;
   let attachmentInput:HTMLInputElement;
-  let input :HTMLInputElement ;
-  let image : HTMLImageElement;
+  let discountRef :HTMLInputElement ;
+  let image : HTMLInputElement;
   let ind = 0;
   let next: HTMLInputElement ;
   let filterdArray : any[] =[];
   let focus =false ;
   let validate = false;
+
   $: filterdArray, ind = 0 ;
   function changeFocus(code:string) {
     if (code==="ArrowDown" && filterdArray.length >0)
@@ -51,11 +52,20 @@
         $formData.total = $formData.items.map(x => x.total).reduce((x,y) => x +y);
     }
   }
+
+  let discountFocus = false ;
+  let additionalChargesFocus = false;
+  let discountInputs:any[] = []
+  let additionalChargesInputs:any[] = []
+  $: discountInputs = $formData.deductions.map(x => null)
+  $: additionalChargesInputs = $formData.aditionalCharges.map(x =>null);
   function addDiscount(){
     $formData.deductions = [...$formData.deductions,{name:'',chargeType:'%',amount:0}]
-  }
+    discountFocus = true;
+}
   function addAdditionalCharges(){
     $formData.aditionalCharges = [...$formData.aditionalCharges,{name:'',chargeType:'%',amount:0}]
+    additionalChargesFocus = true;
   }
   function removeDiscount(index:number) {
     $formData.deductions.splice(index,1);
@@ -112,11 +122,26 @@
         else
             navigate( `/${templateId}/preview`);    
     }
+    function additionalChargeUpdate(event:any,index:number) {
+        if ((event.key == "Enter" || event.key === 'Tab')&& event.target.value === '') {
+            $formData.aditionalCharges[index].name = 'Additional Charge'
+        }
+    }
 
+    function discountUpdate(event:any,index:number) {
+        if ((event.key == "Enter" || event.key === 'Tab')&& event.target.value === '') {
+            $formData.deductions[index].name = 'Discount'
+        }
+    }
     let ItemData :any = [];
 async function getItemData(){ 
     try {
-        let data  = await fetch($itemURL).then(x => x.json()).then(x => x.products);
+        let data  = await postData('/templates/fetchInputMapping',{
+            "templateid": templateId,
+            "fetchfor": "ItemInformation",
+            "fetchfrom": "Google_Sheet",
+            "range": "A1:Z100"
+        }).then( x => x.payload);
         if (data===undefined )
         throw Error();
         ItemData = data;
@@ -137,10 +162,28 @@ onMount(async()=>{
     else {
         $refresh = true;
     }
+    
 })
+$:{
+    if(discountFocus) {
+        discountRef?.focus();
+        setTimeout(()=>discountFocus = false  ,0)
+        
+    }
+    else if (additionalChargesFocus)  {
+        image?.focus();
+        setTimeout(()=>additionalChargesFocus = false  ,0)
+        
+    }
+}
 async function getClientData(){
     try {
-        let data = await fetch($clientURL).then(x => x.json()).then(x => x.users);
+        let data  = await postData('/templates/fetchInputMapping',{
+            "templateid": templateId,
+            "fetchfor": "ClientInformation",
+            "fetchfrom": "Google_Sheet",
+            "range": "A1:Z100"
+        }).then( x => x.payload);
         if (data===undefined ) 
         throw Error();
         CustomerData = data;
@@ -184,10 +227,10 @@ $:{
 }
 
   $: {
-    let val = $formData.items.reduce((x,y) => x+ y.total,0)
+    $formData.subTotal = $formData.items.reduce((x,y) => x+ y.total,0)
     let totalDiscountPercent = $formData.deductions.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
     let totalDiscountAmount = $formData.deductions.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
-    val = val*(1 - totalDiscountPercent/100) - totalDiscountAmount ;
+    let val = $formData.subTotal*(1 - totalDiscountPercent/100) - totalDiscountAmount ;
     let totalExtraChargePercent = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '%' ? x+ y.amount : x ,0 );
     let totalExtraChargeAmount = $formData.aditionalCharges.reduce((x,y) => y.chargeType == '₹' ? x+ y.amount : x ,0 );
     $formData.total = Math.round( val*(1 + totalExtraChargePercent/100) + totalExtraChargeAmount );
@@ -261,10 +304,26 @@ $:{
 
                 <div class="flex " >
                     <div class="max-sm:flex-1 px-3 max-sm:mx-auto sm:ml-auto  mt-5">
+                        {#if $formData.aditionalCharges.length + $formData.deductions.length !== 0}
+                            <div class="flex mb-10  text-xl mt-10 py-4 border-y border-[#B7C2D3FF] ">
+                                <span>Sub Total (INR)</span>
+                                <span class="ml-auto"> ₹ {$formData.subTotal}</span> 
+                            </div>
+                        {/if}
                         <div class="">
                             {#each $formData.deductions as discount,index}
                             <div class="flex mt-7">
-                                    <input bind:value={discount.name} placeholder="Discount Name" class="bg-inherit rounded-none {validate&& discount.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10" />
+                                {#if $formData.deductions.length -1 !==index}
+                                    <input bind:value={discount.name} placeholder="Discount Name" class="bg-inherit rounded-none {validate&& discount.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"
+                                    on:keydown={(e)=>discountUpdate(e,index)}
+                                    />
+                                {:else}
+                                    <input bind:value={discount.name} placeholder="Discount Name" class="bg-inherit rounded-none {validate&& discount.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"
+                                    bind:this={discountRef}
+                                    on:keydown={(e)=>discountUpdate(e,index)}
+                                    />
+                                {/if}
+                                    
                                     <input bind:value={discount.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
                                     <select bind:value={discount.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
@@ -273,11 +332,20 @@ $:{
                                     <button on:click={()=>removeDiscount(index)} class="ml-2"><img src={Cross} alt=""></button>
                                 </div>
                                 {/each}
+                                
                             <div class="">
                                 {#each $formData.aditionalCharges as extraCharge,index}
                                 <div class="flex  mt-7">
-
-                                    <input bind:value={extraCharge.name} placeholder="Additional Charges Name" class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"/>
+                                    {#if $formData.aditionalCharges.length -1 === index}
+                                        <input bind:value={extraCharge.name} placeholder="Additional Charges Name" class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"
+                                        on:keydown={(e)=>additionalChargeUpdate(e,index)}
+                                        bind:this={image}
+                                        />
+                                    {:else}
+                                        <input bind:value={extraCharge.name} placeholder="Additional Charges Name" class="bg-inherit rounded-none {validate&& extraCharge.name.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} border-b w-40 focus:outline-none self-center text-xl mr-10"
+                                        on:keydown={(e)=>additionalChargeUpdate(e,index)}
+                                        />
+                                    {/if}
                                     <input bind:value={extraCharge.amount} class="rounded-none ml-auto focus:outline-none  border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] "  type="number" min="0" >
                                     <select bind:value={extraCharge.chargeType} class="rounded-none ml-5 focus:outline-none border-b pb-2 w-12 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3] ">
                                         <option value="%">%</option>
@@ -344,23 +412,25 @@ $:{
                         </div>
                     {/if}
                 </div>
-                <div class="w-full mt-16 p-5 bg-secondary-bg">
-                    <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
-                    {#each $formData.terms as item,index}
-                        <div class="flex pb-2 mt-5">
-                            <span class="self-center mr-2">{index+1}.</span>
-                            <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
-                            <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
-                            {#if $formData.terms.length -1 > index }
-                                <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
-                            {/if}
-                            {#if index > 0}
-                                <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
-                            {/if}
-                        </div>
-                    {/each}
-                    <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
-                </div>
+                {#if $setting.terms}
+                    <div class="w-full mt-16 p-5 bg-secondary-bg">
+                        <div class="text-lg text-secondary-fg  py-2 font-semibold">TERMS & CONDITIONS</div>
+                        {#each $formData.terms as item,index}
+                            <div class="flex pb-2 mt-5">
+                                <span class="self-center mr-2">{index+1}.</span>
+                                <input type="text" bind:value={item} class="focus:outline-none border-b w-full {validate&& item.length ===0 ?'border-red-600':'border-gray-400 focus-border-primary-fg'} bg-inherit placeholder-[#B7C2D3]">
+                                <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
+                                {#if $formData.terms.length -1 > index }
+                                    <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
+                                {/if}
+                                {#if index > 0}
+                                    <button on:click={()=> swapTerms(index -1)} class="ml-2"><img src={Up} alt="up"/></button>
+                                {/if}
+                            </div>
+                        {/each}
+                        <button on:click={addTerms} class="text-primary-fg mt-5">+ add Terms</button>
+                    </div>
+                {/if}
                 <div class="mt-10 flex-col w-full flex">
                     <button on:click={validateForm} class="text-white mt-10 mx-auto bg-[#CC335F] text-lg  p-2 rounded-md "  >
                         SAVE & CONTINUE

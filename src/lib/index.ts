@@ -1,3 +1,5 @@
+import { ItemData } from "../ProductData";
+import { postData } from "../api/api";
 import { formData } from "../store/FormStore";
 import { client, record } from "../store/SettingsStore";
 

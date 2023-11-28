@@ -2,12 +2,14 @@ import { writable ,type Writable } from "svelte/store";
 import { formData, type UploadFile } from "./FormStore";
 
 export interface Setting {
-    autoMode: boolean,
-    showThumbnail: boolean,
-    showDesc: boolean,
-    showDiscount:boolean,
-    showGST:boolean,
-    org:string,
+  thumbnail: boolean,
+  description: boolean,
+  discount: boolean,
+  additionalNotes: boolean,
+  attachments: boolean,
+  GST: boolean,
+  org:string,
+  terms:boolean,
 }
 
 function getFromLocalStorage<T>(key: string, defaultValue: T): T {
@@ -18,14 +20,15 @@ function updateLocalStorage<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-export const setting = writable( {
+export const setting = writable<Setting>( {
   thumbnail: false,
   description: true,
   discount: true,
   additionalNotes: false,
   attachments: false,
   GST: true,
-  org:''
+  org:'',
+  terms:true,
 });
 
 // setting.subscribe(($setting) => {
@@ -38,7 +41,7 @@ export interface ProductData {
   discount?:number,
   price?:number,
 }
-export interface DataMapping {
+export interface DataMappingType {
   from :string,
   to:string,
 }
@@ -70,11 +73,11 @@ export const clientInfo : Writable<ClientType>  = writable({
 
 export const productData: Writable<ProductData[]> = writable([])
 
-export const productDataMapping:Writable<DataMapping[]> = writable([])
+export const productDataMapping:Writable<DataMappingType[]> = writable([])
 
 export const clientData:Writable<ClientData[]> = writable([]); 
 
-export const clientDataMapping:Writable<DataMapping[]> = writable([])
+export const clientDataMapping:Writable<DataMappingType[]> = writable([])
 
 export const clientURL:Writable<string> = writable('https://dummyjson.com/users')
 
@@ -86,11 +89,10 @@ export interface Variable {
 }
 
 export const variables:Writable<Variable[]> = writable([
-  {name:'myVariable',values:['value1','value2']},
-  {name:'Return Reason',values:['reason 1','reason 2']},
+  {name:'',values:['']}
 ])
 
-export const terms:Writable<string> = writable('')
+export const terms:Writable<string[]> = writable([])
 
 export interface Colors {
   primaryFg: string,
@@ -112,23 +114,29 @@ export const record:Writable<string[]> = writable([])
 export const client:Writable<string[]> = writable(['',''])
 
 
-export interface Template {
+export interface TemplateType {
   name:string;
   business:string;
   other:string;
   logo:UploadFile;
   signature:UploadFile;
   terms:string[];
+  dataUrl:string;
+  outputFormMapping:DataMappingType[];
+  outputItemMapping:DataMappingType[];
 }
 
 
-export const template:Writable<Template> = writable({
-  name:'INVOICE',
-  business:'SEVENTY TWO PHARMA OMNICARE PVT LTD',
-  other:'NO. 31 & 33, C.M.C Road, Senjal, Karaikudi',
+export const template:Writable<TemplateType> = writable({
+  name:'',
+  business:'',
+  other:'',
   signature:{file:null,url:''},
   logo:{file:null,url:''},
   terms:[],
+  dataUrl:'',
+  outputFormMapping:[{from :'formNo',to:''}],
+  outputItemMapping:[{from :'formNo',to:''}],
 })
 
 

@@ -4,24 +4,30 @@ import Cross from '../assets/cross.svg'
 import { onMount } from 'svelte';
 import Down from '../assets/down.svg'
 import Up from '../assets/up.svg'
-import type { ClientData, DataMapping, ProductData } from '../store/SettingsStore';
+import type { ClientData, DataMappingType, ProductData } from '../store/SettingsStore';
+  import { postData } from '../api/api';
 let itemList = ['name','price','discount','gst','description'];
 let clientList = ['name','business','phno','email','gstno','address']
 let tab:'client'|'item' |'terms' = 'client';
-
+export let templateId:string ;
 export let products:ProductData[] ;
-export let productMapping:DataMapping[] ;
-export let clientMapping:DataMapping[] ;
+export let productMapping:DataMappingType[] ;
+export let clientMapping:DataMappingType[] ;
 export let clients:ClientData[]  ;
 export let clientUrl:string ;
 export let itemUrl:string ;
-export let Terms:string[] ;
+export let terms:string[] ;
 export let setError :(msg:string)=> void ;
 
 let ItemData :any = [];
 async function getItemData(){ 
     try {
-        let data  = await fetch(itemUrl).then(x => x.json()).then(x => x.products);
+        let data  = await postData('/templates/fetchInputMapping',{
+            "templateid": templateId,
+            "fetchfor": "ItemInformation",
+            "fetchfrom": "Google_Sheet",
+            "range": "A1:Z100"
+        }).then(x => x.json()).then(x => x.products);
         if (data===undefined )
         throw Error();
         ItemData = data;
@@ -41,7 +47,12 @@ onMount(async()=>{
 })
 async function getClientData(){
     try {
-        let data = await fetch(clientUrl).then(x => x.json()).then(x => x.users);
+        let data  = await postData('/templates/fetchInputMapping',{
+            "templateid": templateId,
+            "fetchfor": "ClientInformation",
+            "fetchfrom": "Google_Sheet",
+            "range": "A1:Z100"
+        }).then( x => x.payload);
         if (data===undefined ) 
         throw Error();
         CustomerData = data;
@@ -101,17 +112,17 @@ function removeClientMapping(index:number) {
     clientMapping = [...clientMapping];
 }
 function swapTerms(index:number) {
-    let temp = Terms[index]
-    Terms[index] = Terms[index +1]
-    Terms[index +1] = temp
-    Terms = [...Terms ]
+    let temp = terms[index]
+    terms[index] = terms[index +1]
+    terms[index +1] = temp
+    terms = [...terms ]
 }
 function addTerms() {
-    Terms = [...Terms,'']
+    terms = [...terms,'']
 }
 function removeTerm (index:number) {
-    Terms.splice(index,1)
-    Terms = [...Terms]
+    terms.splice(index,1)
+    terms = [...terms]
 }
 </script>
 <div class="bg-secondary-bg">
@@ -128,18 +139,7 @@ function removeTerm (index:number) {
     </div>
         {#each productMapping as item,index}
             <div class="flex px-10 py-3">   
-                <div class="" >
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
-                    {#if ItemData.length}
-                        {#each Object.keys(ItemData[0]) as val}
-                            {#if item.from===val || !productMapping.map(y => y.from).includes(val) }
-                            <option value={val} >{val}</option>
-                            {/if}
-                        {/each}
-                    {/if}
-                    </select>
-                </div>
-                <div class="ml-auto">
+                <div class="">
                     <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
                     {#each itemList as val}
                         {#if item.to === val || !productMapping.map(y => y.to).includes(val)}
@@ -147,6 +147,14 @@ function removeTerm (index:number) {
                         {/if}
                     {/each} 
                     </select>
+                </div>
+                <div class="ml-auto" >
+                    <input
+                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        bind:value={item.from}
+                        placeholder="Google Sheet Field Name"
+                        type="text"
+                        />
                 </div>
                 <button on:click={()=> removeProductMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
             </div>
@@ -162,17 +170,6 @@ function removeTerm (index:number) {
         {#each clientMapping as item,index}
             <div class="flex px-10 py-3">   
                 <div class="" >
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
-                        {#if CustomerData.length}
-                            {#each Object.keys(CustomerData[0]) as val}
-                                {#if item.from===val || !clientMapping.map(y => y.from).includes(val) }
-                                <option value={val} >{val}</option>
-                                {/if}
-                            {/each}
-                        {/if}
-                    </select>
-                </div>
-                <div class="ml-auto">
                     <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
                         {#each clientList as val}
                         {#if item.to === val || !clientMapping.map(y => y.to).includes(val)}
@@ -180,6 +177,15 @@ function removeTerm (index:number) {
                         {/if}
                     {/each} 
                     </select>
+                </div>
+                <div class="ml-auto">
+                    
+                    <input
+                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        bind:value={item.from}
+                        placeholder="Google Sheet Field Name"
+                        type="text"
+                        />
                 </div>
                 <button on:click={()=> removeClientMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
             </div>
@@ -190,12 +196,12 @@ function removeTerm (index:number) {
 
     {:else} 
     <div class="bg-secondary-bg flex flex-col m-3 p-6">
-        {#each Terms as item,index}
+        {#each terms as item,index}
             <div class="flex pb-2 mt-5">
                 <span class="self-center  mr-2">{index+1}.</span>
                 <input type="text" bind:value={item} class="focus:outline-none w-full border-b border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]">
                 <button class="ml-2" on:click={()=>removeTerm(index) } ><img src={Cross} alt="cross"/></button>
-                {#if Terms.length -1 > index }
+                {#if terms.length -1 > index }
                     <button on:click={()=> swapTerms(index)} class="ml-2"><img src={Down} alt="down"/></button>
                 {/if}
                 {#if index > 0}

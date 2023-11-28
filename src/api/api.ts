@@ -2,7 +2,7 @@ import axios from 'axios';
 import { clientDataMapping, clientURL, itemURL, productDataMapping, record, setting, template, terms, variables } from '../store/SettingsStore';
 import { formData } from '../store/FormStore';
 
-export const baseURL = 'https://niforms.neuui.com/api/v1'
+export const baseURL = 'http://localhost:3000/api/v1'
 
 const instance = axios.create({
   baseURL
@@ -85,9 +85,23 @@ export async function getTemplate(templateId:string) {
             x.name=payload.templateName
             x.business = payload.businessName;
             x.other = payload.otherInfo;
-            x.terms = payload.dataMapping.terms.map((x:any) => x.value);
+            x.terms = payload.dataMapping.terms.map((x:any) => x?.value ?? '');
             x.logo = {url:payload.templateLogo,file:null}
             x.signature = {url:payload.templateSignature,file:null}
+            console.log(payload.dataMapping)
+            x.outputFormMapping= payload.dataMapping.outputDataMapping.formMappedData.map((x:any) => {
+                return {
+                    from: x.urlFieldName,
+                    to: x.templateFieldName
+                };
+            })
+            x.dataUrl = payload.dataMapping.outputDataMapping.dataUrl;
+            x.outputItemMapping= payload.dataMapping.outputDataMapping.ItemMappedData.map((x:any) => {
+                return {
+                    from: x.urlFieldName,
+                    to: x.templateFieldName
+                };
+            })
             return x ;
         })
         setting.update( x => {
@@ -122,12 +136,14 @@ export async function getTemplate(templateId:string) {
                 to: x.templateFieldName
             };
         }));
+        localStorage.setItem('orgId',payload.orgId);
+        
 }
 
 template.subscribe((x) => {
   formData.update(y => {
-    y.terms = x.terms;
-    y.signature = x.signature;
+    y.terms = [...x.terms];
+    y.signature = {...x.signature};
     return y;
   })
 })

@@ -20,6 +20,9 @@
     <Route path="/:id/setting" let:params >
       <Setting templateId={params.id} />
     </Route>
+    <Route path="/updateTemplate/:id" let:params >
+      <Setting templateId={params.id} refreshSetting={true} />
+    </Route>
     <Route path="/:id/preview" let:params >
       <Preview templateId={params.id} />
     </Route>

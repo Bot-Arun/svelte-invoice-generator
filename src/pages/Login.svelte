@@ -14,7 +14,7 @@
         if(status > 250)
         setError(message)
         localStorage.setItem('token',payload.token)
-        $setting.org =payload.userData._id;
+        localStorage.setItem('orgId',payload.userData._id)
         navigate('/home')
 
 }

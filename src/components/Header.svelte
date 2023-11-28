@@ -2,6 +2,7 @@
 
   import { template } from "../store/SettingsStore";
   import FileUpload from "./FileUpload.svelte";
+  export let preview = false ;
 </script>
 
 
@@ -18,7 +19,7 @@
         <div class="m-4 mr-10 " >
             <FileUpload className="h-36 w-36" isImage={true} text="temp"  file={$template.logo}  />
         </div>
-    {:else}
+    {:else if !preview}
         <div class=" text-center my-7 p-5 sm:p-10 flex my-border mr-3 sm:mx-8" > 
             <span class="py-5 self-center sm:text-xl font-light flex-wrap text-lg ">Add Logo</span> 
         </div>

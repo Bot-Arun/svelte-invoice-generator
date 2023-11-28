@@ -23,6 +23,7 @@ export interface charge {
 
 export interface FormDataType {
   items:FormItemType[],
+  subTotal:number,
   deductions:charge[],
   aditionalCharges:charge[],
   total:number,
@@ -48,6 +49,7 @@ export const formData:Writable<FormDataType> = writable({
       total: 0,
     },
   ],
+  subTotal:0,
   signature:{url:'',file:null}, 
   deductions:[],
   total:0,
