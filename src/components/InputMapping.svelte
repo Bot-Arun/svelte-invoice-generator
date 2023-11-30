@@ -9,6 +9,7 @@ import type { ClientData, DataMappingType, ProductData } from '../store/Settings
 let itemList = ['name','price','discount','gst','description'];
 let clientList = ['name','business','phno','email','gstno','address']
 let tab:'client'|'item' |'terms' = 'client';
+export let create:boolean; 
 export let templateId:string ;
 export let products:ProductData[] ;
 export let productMapping:DataMappingType[] ;
@@ -40,6 +41,7 @@ async function getItemData(){
 
 let CustomerData :any = [];
 onMount(async()=>{
+    if(!create)
     await Promise.all([
         getClientData(),
         getItemData(),
@@ -159,7 +161,7 @@ function removeTerm (index:number) {
                 <button on:click={()=> removeProductMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
             </div>
         {/each}     
-        {#if ItemData.length}
+        {#if ItemData.length - productMapping.length || create}
             <button class="text-primary-fg  ml-10 my-6" in:fade out:fade  on:click={addProductMapping} >Add Mapping</button>
         {/if}
     {:else if  tab === 'client'}
@@ -190,7 +192,7 @@ function removeTerm (index:number) {
                 <button on:click={()=> removeClientMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
             </div>
         {/each} 
-        {#if CustomerData.length}
+        {#if CustomerData.length  - clientMapping.length || create}
             <button class="text-primary-fg  ml-10 my-6" in:fade out:fade  on:click={addClientMapping} >Add Mapping</button>
         {/if}
 

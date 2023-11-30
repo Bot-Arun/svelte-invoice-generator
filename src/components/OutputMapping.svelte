@@ -2,19 +2,20 @@
   import { fade } from "svelte/transition";
     import Cross from '../assets/cross.svg';
   import { formData } from "../store/FormStore";
-  import { clientInfo, template, variables } from "../store/SettingsStore";
+  import { clientDataMapping, clientInfo, template, variables } from "../store/SettingsStore";
   import App from "../App.svelte";
     let tab :"item"|"form" = 'form';
     let itemList = ['item','qty','price','GST','total','description'];
-    let formList = ['formNo','totalAmount',...$formData.deductions.map(x => x.name),...$formData.aditionalCharges.map(x => x.name),...$variables.map(x => x.name),...Object.keys($clientInfo)].filter(x => x!== '')
+    let formList:string[] = []
+    $:formList = ['formNo','totalAmount',...$formData.deductions.map(x => x.name),...$formData.aditionalCharges.map(x => x.name),...$variables.map(x => x.name),...Object.keys($clientInfo)].filter(x => x!== '')
     export let formMapping:any = []
     function addFormItemMapping() {
         formMapping.push({from:'',to:''})
         formMapping = [...formMapping];
     }
     function removeFormItemMapping(index:number) {
-        formMapping.splice(index,1)
-        formMapping = [...formMapping];
+            formMapping.splice(index,1)
+            formMapping = [...formMapping];
     }
     export let itemMapping:any = []
     function addItemMapping() {
@@ -42,11 +43,12 @@
                     {#if item.from === 'formNo' }
                         <input disabled class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}/>
                     {:else}
+                    {item.from}
                     <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
                     {#if formList.length}
                         {#each formList as val}
                             {#if item.from===val || !formMapping.map(y => y.from).includes(val) }
-                            <option value={val} >{val}</option>
+                            <option selected={val===item.from} value={val} >{val}</option>
                             {/if}
                         {/each}
                     {/if}
@@ -61,7 +63,9 @@
                         type="text"
                         />
                 </div>
-                <button on:click={()=> removeFormItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {#if index}
+                    <button on:click={()=> removeFormItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {/if}
             </div>
         {/each}     
         {#if formList.length - formMapping.length}
@@ -96,7 +100,9 @@
                         type="text"
                         />
                 </div>
-                <button on:click={()=> removeItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {#if index}
+                     <button on:click={()=> removeItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {/if}
             </div>
         {/each}     
         {#if itemList.length - itemMapping.length}

@@ -79,9 +79,9 @@ export const clientData:Writable<ClientData[]> = writable([]);
 
 export const clientDataMapping:Writable<DataMappingType[]> = writable([])
 
-export const clientURL:Writable<string> = writable('https://dummyjson.com/users')
+export const clientURL:Writable<string> = writable('')
 
-export const itemURL:Writable<string> = writable('https://dummyjson.com/products')
+export const itemURL:Writable<string> = writable('')
 
 export interface Variable {
   name:string;

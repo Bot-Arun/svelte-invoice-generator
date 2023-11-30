@@ -42,13 +42,13 @@
                       }
                   })
               },
-              "clientInformation": [
-                  {
-                  "key": "Key",
-                  "value": "Value",
+              "clientInformation":Array.from(Object.entries($clientInfo)).map( x =>{
+                return {
+                  "key": x[0],
+                  "value": x[1],
                   "typeData": "string"
-                  }
-              ],
+                }
+            }),
               "itemDetails":$formData.items.map(x=> {
                   return {
                       "item": x.name,

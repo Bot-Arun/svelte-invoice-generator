@@ -20,7 +20,6 @@
     type ClientData,
     type TemplateType
   } from "../store/SettingsStore";
-  $: console.log(variables)
   import Template from "../components/Template.svelte";
   function updateChanges( templates: TemplateType,
   settings: Setting,
@@ -49,7 +48,7 @@
 <Template 
   create={true}
   setting={$setting}
-  variables={$variables}
+  bind:variables={$variables}
   updateChanges={updateChanges}
   themeColors={$themeColors}
   record={$record}

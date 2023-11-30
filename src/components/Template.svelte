@@ -1,9 +1,9 @@
 <script lang="ts">
-  import DataMapping from "./InputMapping.svelte";
+  import InputMapping from "./InputMapping.svelte";
   import Cross from "../assets/cross.svg";
   import { fade, fly } from "svelte/transition";
   import BackButton from "./BackButton.svelte";
-  export let templateId:string;
+  export let templateId:string = '';
   export let setting:Setting;
   export let variables:Variable[];
   export let themeColors:Colors;
@@ -486,8 +486,9 @@ async function updateTemplate() {
     </div>
     <div>
       <div class="my-5 text-4xl font-semibold">INPUT DATA MAPPING</div>
-      <DataMapping
+      <InputMapping
         templateId={templateId}
+        create={create}
         bind:terms={template.terms}
         bind:clientMapping={clientDataMapping}
         bind:clientUrl={clientURL}

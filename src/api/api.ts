@@ -91,15 +91,15 @@ export async function getTemplate(templateId:string) {
             console.log(payload.dataMapping)
             x.outputFormMapping= payload.dataMapping.outputDataMapping.formMappedData.map((x:any) => {
                 return {
-                    from: x.urlFieldName,
-                    to: x.templateFieldName
+                    from: x.templateFieldName,
+                    to: x.urlFieldName,
                 };
             })
             x.dataUrl = payload.dataMapping.outputDataMapping.dataUrl;
-            x.outputItemMapping= payload.dataMapping.outputDataMapping.ItemMappedData.map((x:any) => {
+            x.outputItemMapping = payload.dataMapping.outputDataMapping.ItemMappedData.map((x:any) => {
                 return {
-                    from: x.urlFieldName,
-                    to: x.templateFieldName
+                    from: x.templateFieldName,
+                    to: x.urlFieldName,
                 };
             })
             return x ;
