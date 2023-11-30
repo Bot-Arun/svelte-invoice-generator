@@ -2,7 +2,7 @@ import axios from 'axios';
 import { clientDataMapping, clientURL, itemURL, productDataMapping, record, setting, template, terms, variables } from '../store/SettingsStore';
 import { formData } from '../store/FormStore';
 
-export const baseURL = 'http://localhost:3000/api/v1'
+export const baseURL = 'https://niforms.neuui.com/api/v1'
 
 const instance = axios.create({
   baseURL
