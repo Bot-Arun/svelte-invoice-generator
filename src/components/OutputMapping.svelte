@@ -18,6 +18,7 @@
             formMapping = [...formMapping];
     }
     export let itemMapping:any = []
+    export let validate:boolean ;
     function addItemMapping() {
         itemMapping.push({from:'',to:''})
         itemMapping = [...itemMapping];
@@ -43,8 +44,7 @@
                     {#if item.from === 'formNo' }
                         <input disabled class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}/>
                     {:else}
-                    {item.from}
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b {validate && item.from ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
                     {#if formList.length}
                         {#each formList as val}
                             {#if item.from===val || !formMapping.map(y => y.from).includes(val) }
@@ -57,7 +57,7 @@
                 </div>
                 <div class="ml-auto">
                     <input
-                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        class=" focus:outline-none border-b pb-2 w-60 {validate && item.to.trim() ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                         bind:value={item.to}
                         placeholder=" Choose value "
                         type="text"
@@ -65,6 +65,8 @@
                 </div>
                 {#if index}
                     <button on:click={()=> removeFormItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {:else}
+                    <span class="w-10"></span>
                 {/if}
             </div>
         {/each}     
@@ -81,7 +83,7 @@
                     {#if item.from === 'formNo' }
                         <input disabled class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}/>
                     {:else}
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b {validate && item.from ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.from}>
                     {#if itemList.length}
                         {#each itemList as val}
                             {#if item.from===val || !itemMapping.map(y => y.from).includes(val) }
@@ -94,7 +96,7 @@
                 </div>
                 <div class="ml-auto">
                     <input
-                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        class=" focus:outline-none border-b pb-2 w-60 {validate && item.to.trim() ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                         bind:value={item.to}
                         placeholder=" Choose value "
                         type="text"
@@ -102,6 +104,8 @@
                 </div>
                 {#if index}
                      <button on:click={()=> removeItemMapping(index) } class="ml-4"> <img src={Cross} alt=""> </button>
+                {:else}
+                    <span class="w-10"></span>
                 {/if}
             </div>
         {/each}     

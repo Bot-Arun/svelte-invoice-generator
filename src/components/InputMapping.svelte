@@ -15,6 +15,7 @@ export let products:ProductData[] ;
 export let productMapping:DataMappingType[] ;
 export let clientMapping:DataMappingType[] ;
 export let clients:ClientData[]  ;
+export let validate:boolean;
 export let clientUrl:string ;
 export let itemUrl:string ;
 export let terms:string[] ;
@@ -142,7 +143,7 @@ function removeTerm (index:number) {
         {#each productMapping as item,index}
             <div class="flex px-10 py-3">   
                 <div class="">
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b {validate && item.to ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
                     {#each itemList as val}
                         {#if item.to === val || !productMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>
@@ -152,7 +153,7 @@ function removeTerm (index:number) {
                 </div>
                 <div class="ml-auto" >
                     <input
-                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        class=" focus:outline-none border-b pb-2 w-60 {validate && item.from ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                         bind:value={item.from}
                         placeholder="Google Sheet Field Name"
                         type="text"
@@ -172,7 +173,7 @@ function removeTerm (index:number) {
         {#each clientMapping as item,index}
             <div class="flex px-10 py-3">   
                 <div class="" >
-                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b border-gray-400 hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
+                    <select class="max-sm:w-20 sm:w-28 md:w-60 text-lg focus:outline-none border-b {validate && item.to ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  hover:border-primary-fg focus-border-primary-fg bg-inherit p-2" bind:value={item.to}>
                         {#each clientList as val}
                         {#if item.to === val || !clientMapping.map(y => y.to).includes(val)}
                         <option>{val}</option>
@@ -183,7 +184,7 @@ function removeTerm (index:number) {
                 <div class="ml-auto">
                     
                     <input
-                        class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                        class=" focus:outline-none border-b pb-2 w-60 {validate && item.from ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"} 0 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                         bind:value={item.from}
                         placeholder="Google Sheet Field Name"
                         type="text"

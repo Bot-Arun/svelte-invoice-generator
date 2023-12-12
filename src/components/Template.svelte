@@ -26,6 +26,9 @@ import { navigate } from "svelte-routing";
   import type { ClientData, Colors, DataMappingType, ProductData, Setting, TemplateType, Variable } from "../store/SettingsStore";
   let ind = 0;
   async function createTemplate() {
+    validateForm();
+    if(errors.length)
+      return
     var result = await postData('/templates/create',{
       "templateName": template.name,
       "businessName": template.business,
@@ -150,6 +153,9 @@ import { navigate } from "svelte-routing";
   }
 }
 async function updateTemplate() {
+    validateForm();
+    if (errors.length) 
+      return;
     let signatureUrl = '';
     let logo = ''
     if(template.signature.file) {
@@ -295,8 +301,8 @@ async function updateTemplate() {
   }
 
   function removeVariable(index: number) {
-    if (variables.length > 1) variables.splice(index, 1);
-    else variables[0] = { name: "", values: [""] };
+    variables[index] = []
+    variables.splice(index, 1)
     variables = [...variables];
   }
 
@@ -309,6 +315,32 @@ async function updateTemplate() {
     variables[ind].values.splice(index, 1)
     variables[ind] = { ...variables[ind] };
     variables = [...variables];    
+  }
+
+  let validate = false ;
+  let errors:string[] = []
+  function validateForm() {
+    errors =[]
+        if(template.name.length===0) 
+            errors.push("Template Name Can't be empty !");
+        if(template.business.length===0)
+            errors.push("Business Name Can't be empty !");
+        if(variables.some( x => x.name.trim() === ''))
+            errors.push("Custom Variable name Can't be empty !");
+        if(variables.some( x => x.values.some(x => x.trim() === '')))
+            errors.push("Custom Variable Value Can't be empty !");
+        if(productDataMapping.some( x=> x.from.trim() === '' || x.to.trim() === ''))
+            errors.push("Input Item Mapping Can't be empty !");
+        if(clientDataMapping.some( x=> x.from.trim() === '' || x.to.trim() === ''))
+            errors.push("Input Client Mapping Can't be empty !");
+        if(template.outputFormMapping.some( x=> x.from.trim() === '' || x.to.trim() === ''))
+            errors.push("Output Form Mapping Can't be empty !");
+        if(template.outputItemMapping.some( x=> x.from.trim() === '' || x.to.trim() === ''))
+            errors.push("Output Item Mapping Can't be empty !");
+        errors = [...errors]
+        validate =true;
+        if(errors.length)
+            document?.getElementById('my_modal_3')?.showModal()
   }
 
   $: variables, variables.length - 1 < ind ? (ind -= 1) : ind;
@@ -328,7 +360,7 @@ async function updateTemplate() {
               <div class=" mr-20">
               <input
                   bind:value={template.name}
-                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full {validate && template.name ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"} bg-inherit placeholder-[#B7C2D3]"
                   placeholder="Template name"
                   type="text"
               />
@@ -336,7 +368,7 @@ async function updateTemplate() {
               <div class="">
               <input
                   bind:value={template.business}
-                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                  class=" rounded-none focus:outline-none mt-5 border-b pb-2 w-full {validate && template.business ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                   placeholder="Business name"
                   type="text"
               />
@@ -431,7 +463,7 @@ async function updateTemplate() {
                 ><img src={Cross} alt="" /></button
               >
               <input
-                class="ml-2 focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+                class="ml-2 focus:outline-none border-b pb-2 w-60 {validate && tempVariableName ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
                 placeholder="Variable Name"
                 bind:value={tempVariableName}
                 on:keydown={(e) => newVariable(e.code, index)}
@@ -468,11 +500,11 @@ async function updateTemplate() {
             >+ Add new value</button
           >
         </div>
-        {#each variables[ind].values as item, index}
+        {#each variables[ind]?.values ?? [] as item, index}
           <div class="flex mt-3">
             <span class="self-center mr-2">{index + 1}.</span>
             <input
-              class=" focus:outline-none border-b pb-2 w-60 border-gray-400 focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
+              class=" focus:outline-none border-b pb-2 w-60 {validate && item ==='' ? 'border-red-600' :  "border-gray-400 focus-border-primary-fg"}  focus-border-primary-fg bg-inherit placeholder-[#B7C2D3]"
               bind:value={item}
               placeholder=" Choose value {index + 1}"
               type="text"
@@ -487,6 +519,7 @@ async function updateTemplate() {
     <div>
       <div class="my-5 text-4xl font-semibold">INPUT DATA MAPPING</div>
       <InputMapping
+        {validate}
         templateId={templateId}
         create={create}
         bind:terms={template.terms}
@@ -500,6 +533,7 @@ async function updateTemplate() {
       />
       <div class="mb-5 mt-20 text-4xl font-semibold">OUTPUT DATA MAPPING</div>
       <OutputMapping
+      {validate}
       bind:formMapping={template.outputFormMapping} bind:itemMapping={template.outputItemMapping} />
       <div class="flex mt-10">
         {#if create}
@@ -542,6 +576,25 @@ async function updateTemplate() {
         </div>
       </div>
     {/if}
+    <dialog id='my_modal_3' class="modal">
+      <div class="modal-box">
+      <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" on:click={()=>'toggleModal'}>✕</button>
+      </form>
+      
+      <h3 class="font-bold text-lg">Alert</h3>
+      <p class="p-4">
+      {#each errors as item,index}
+          <div class="py-2">
+              {index+1}. {item}
+          </div>
+      {/each}
+      </p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+      </form>
+  </dialog>
     {#if success}
       <div class="fixed bottom-5 min-w-max w-full flex justify-center">
         <div in:fly out:fade class=" w-[50%] alert alert-success">
