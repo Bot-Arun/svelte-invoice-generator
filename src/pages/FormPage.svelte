@@ -75,6 +75,9 @@
     $formData.aditionalCharges.splice(index,1);
     $formData.aditionalCharges = [...$formData.aditionalCharges];
   }
+  function add(a:number,b:number){
+    return a+b;
+  }
   function swapTerms(index:number) {
     let temp = $formData.terms[index]
     $formData.terms[index] = $formData.terms[index +1]
